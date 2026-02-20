@@ -25,6 +25,7 @@ public class Member {
 	private String gender;
 	private String email;
 	private String password;
+	private String role;
 	
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
