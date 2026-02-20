@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>근태 관리 — WorkSpace</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="app-wrap">
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+  <div class="main-content">
+    <header th:replace="~{fragments/header :: topbar(title='근태 관리')}"></header>
+    <div class="content-body">
+
+      <div class="page-header">
+        <div>
+          <div class="page-title">⏱ 근태 관리</div>
+          <div class="page-sub">출퇴근 기록을 확인하세요</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">출퇴근 체크</span>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;gap:13px;">
+            <form th:action="@{/attendance/check-in}" method="post">
+              <button type="submit" class="btn btn-primary">⏰ 출근 체크</button>
+            </form>
+            <form th:action="@{/attendance/check-out}" method="post">
+              <button type="submit" class="btn btn-outline">🏠 퇴근 체크</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

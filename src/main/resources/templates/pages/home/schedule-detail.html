@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>일정 상세 — WorkSpace</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="app-wrap">
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+  <div class="main-content">
+    <header th:replace="~{fragments/header :: topbar(title='일정 캘린더')}"></header>
+    <div class="content-body">
+
+      <div class="card" style="max-width:760px;">
+        <div class="card-header">
+          <span class="card-title">📅 일정 상세</span>
+          <a th:href="@{/schedule}" class="btn btn-outline btn-sm">← 목록</a>
+        </div>
+        <div class="card-body">
+
+          <!-- 제목 -->
+          <div class="post-title-big" th:text="${schedule.title}">일정 제목</div>
+
+          <!-- 메타 정보 -->
+          <div class="post-meta-bar">
+            <span>👤 <span th:text="${schedule.memberName}">홍길동</span></span>
+            <span>📅 등록일 <span th:text="${#temporals.format(schedule.createdAt, 'yyyy.MM.dd')}">2025.06.20</span></span>
+            <span th:if="${schedule.isPublic}"><span class="badge badge-blue">공개</span></span>
+            <span th:unless="${schedule.isPublic}"><span class="badge badge-gray">비공개</span></span>
+          </div>
+
+          <!-- 일시 정보 -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;background:var(--bg-page);border-radius:var(--radius);padding:16px;border:1px solid var(--border);">
+            <div>
+              <div class="field-label">시작 일시</div>
+              <div style="font-size:15px;font-weight:700;color:var(--accent);margin-top:5px;"
+                   th:text="${#temporals.format(schedule.startDt, 'yyyy.MM.dd HH:mm')}">2025.06.20 09:00</div>
+            </div>
+            <div>
+              <div class="field-label">종료 일시</div>
+              <div style="font-size:15px;font-weight:700;color:var(--text-main);margin-top:5px;"
+                   th:text="${#temporals.format(schedule.endAt, 'yyyy.MM.dd HH:mm')}">2025.06.20 18:00</div>
+            </div>
+          </div>
+
+          <!-- 내용 -->
+          <div class="post-body" th:text="${schedule.content}">일정 내용이 여기에 표시됩니다.</div>
+
+          <!-- 수정 폼 -->
+          <div id="edit-form" style="display:none;margin-top:16px;">
+            <form th:action="@{/schedule/update/{id}(id=${schedule.scheduleId})}" method="post">
+              <div class="form-group">
+                <label class="form-label">제목</label>
+                <input type="text" name="title" class="form-control" th:value="${schedule.title}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">내용</label>
+                <textarea name="content" class="editor-area" style="min-height:100px;" th:text="${schedule.content}"></textarea>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">시작 일시</label>
+                  <input type="datetime-local" name="startDt" class="form-control"
+                         th:value="${#temporals.format(schedule.startDt, 'yyyy-MM-dd''T''HH:mm')}">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">종료 일시</label>
+                  <input type="datetime-local" name="endAt" class="form-control"
+                         th:value="${#temporals.format(schedule.endAt, 'yyyy-MM-dd''T''HH:mm')}">
+                </div>
+              </div>
+              <div class="form-group">
+                <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text-sub);cursor:pointer;">
+                  <input type="checkbox" name="isPublic" value="true"
+                         th:checked="${schedule.isPublic}" style="accent-color:var(--accent);">
+                  전체 공개
+                </label>
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn btn-outline" onclick="toggleEdit()">취소</button>
+                <button type="submit" class="btn btn-primary">수정 완료</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- 버튼 -->
+          <div class="post-actions" id="action-btns">
+            <a th:href="@{/schedule}" class="btn btn-outline btn-sm">← 목록</a>
+            <!-- 본인 일정만 수정/삭제 가능 -->
+            <div class="post-actions-right"
+                 th:if="${session.LOGIN_MEMBER.memberId == schedule.memberId}">
+              <button class="btn btn-outline btn-sm" onclick="toggleEdit()">수정</button>
+              <form th:action="@{/schedule/delete/{id}(id=${schedule.scheduleId})}"
+                    method="post" style="display:inline;"
+                    onsubmit="return confirm('삭제하시겠습니까?')">
+                <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/script.js}"></script>
+<script>
+function toggleEdit() {
+  const form = document.getElementById('edit-form');
+  const btns = document.getElementById('action-btns');
+  const postBody = document.querySelector('.post-body');
+  if (form.style.display === 'none') {
+    form.style.display = 'block';
+    btns.style.display = 'none';
+    postBody.style.display = 'none';
+  } else {
+    form.style.display = 'none';
+    btns.style.display = 'flex';
+    postBody.style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>
