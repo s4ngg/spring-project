@@ -2,6 +2,8 @@
 
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -34,5 +36,10 @@ public class AttendanceController {
                 .build();
         attendanceService.checkOut(dto);
         return "redirect:/";
+    }
+    
+    @GetMapping("")
+    public String attendancePage(Model model) {
+        return "pages/home/attendance";
     }
 }
