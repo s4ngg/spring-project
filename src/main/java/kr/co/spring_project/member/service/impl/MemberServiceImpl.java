@@ -29,7 +29,8 @@ public class MemberServiceImpl implements MemberService{
 		
 		// 2. 이메일 중복 체크
 		if(memberRepository.existsByEmail(request.getEmail())) {
-			System.out.println("이미 사용중인 이메일 입니다.");
+		    System.out.println("이미 사용중인 이메일 입니다.");
+		    return;  // ← 추가
 		}
 		
 		// 4. 비밀번호 암호화(Spring Security의 BCrypt 사용)
@@ -37,11 +38,12 @@ public class MemberServiceImpl implements MemberService{
 		
 		// 5. Member 엔티티 생성
 		Member member = new Member();
-		member.setEmployeeNo(request.getEmployeeNo());
-		member.setName(request.getUsername());
+		member.setName(request.getName());
+		member.setGender(request.getGender());
 		member.setEmail(request.getEmail());
 		member.setPassword(encodedPassword);
-		// 강제 유저 부여
+		member.setJoinDate(request.getJoinDate());   // ← 추가
+		member.setLeaveDate(request.getLeaveDate()); // ← 추가
 		member.setRole("USER");
 		// 6. DB 저장
 		memberRepository.save(member);
@@ -65,10 +67,10 @@ public class MemberServiceImpl implements MemberService{
 		}
 		
 		ResloginDTO response = new ResloginDTO();
-		response.setEmployeeNo(member.getEmployeeNo());   // ← 수정
+		response.setEmployeeNo(member.getEmployeeNo());
 		response.setEmail(member.getEmail());
-		response.setUsername(member.getName());
-		response.setRole(member.getRole());               // ← 추가
+		response.setName(member.getName());
+		response.setRole(member.getRole());
 		response.setCreatedAt(member.getCreatedAt());
 		response.setUpdatedAt(member.getUpdatedAt());
 

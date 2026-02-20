@@ -1,6 +1,8 @@
 package kr.co.spring_project.schedule.dto;
 
 import java.time.LocalDateTime;
+
+import kr.co.spring_project.schedule.entity.Schedule;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

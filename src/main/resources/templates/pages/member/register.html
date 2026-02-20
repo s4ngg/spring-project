@@ -17,7 +17,7 @@
       <p>사원 정보를 입력하여<br>업무 시스템에 합류하세요.</p>
     </div>
     <div class="auth-feat-list">
-      <div class="auth-feat"><div class="fi">🔒</div><span>사원번호 기반 인증</span></div>
+      <div class="auth-feat"><div class="fi">🔒</div><span>보안 로그인</span></div>
       <div class="auth-feat"><div class="fi">🏬</div><span>부서 / 직급 자동 연동</span></div>
       <div class="auth-feat"><div class="fi">⚡</div><span>가입 즉시 업무 시작</span></div>
     </div>
@@ -31,47 +31,12 @@
     <div class="form-error" th:if="${errorMessage != null}" th:text="${errorMessage}"></div>
 
     <form th:action="@{/member/register}" method="post" th:object="${memberDto}">
+
+      <!-- 이름 + 성별 -->
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">이름 *</label>
           <input type="text" th:field="*{name}" class="form-control" placeholder="홍길동" required>
-          <small style="color:var(--danger);font-size:11px;" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></small>
-        </div>
-        <div class="form-group">
-          <label class="form-label">사원번호(ID) *</label>
-          <input type="text" th:field="*{employeeNo}" class="form-control" placeholder="EMP-0001" required>
-          <small style="color:var(--danger);font-size:11px;" th:if="${#fields.hasErrors('employeeNo')}" th:errors="*{employeeNo}"></small>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">이메일 *</label>
-        <input type="email" th:field="*{email}" class="form-control" placeholder="company@example.com" required>
-        <small style="color:var(--danger);font-size:11px;" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">비밀번호 *</label>
-          <input type="password" th:field="*{password}" class="form-control" placeholder="8자 이상" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">비밀번호 확인 *</label>
-          <input type="password" th:field="*{passwordCheck}" class="form-control" placeholder="재입력" required>
-          <small style="color:var(--danger);font-size:11px;" th:if="${#fields.hasErrors('passwordCheck')}" th:errors="*{passwordCheck}"></small>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">직급 *</label>
-          <select th:field="*{gradeId}" class="form-control" required>
-            <option value="">직급 선택</option>
-            <!-- th:each="grade : ${grades}" -->
-            <option th:each="grade : ${grades}"
-                    th:value="${grade.gradeId}"
-                    th:text="${grade.gradeName}">사원</option>
-          </select>
         </div>
         <div class="form-group">
           <label class="form-label">성별 *</label>
@@ -83,18 +48,35 @@
         </div>
       </div>
 
+      <!-- 이메일 -->
+      <div class="form-group">
+        <label class="form-label">이메일 *</label>
+        <input type="email" th:field="*{email}" class="form-control"
+               placeholder="company@example.com" required>
+      </div>
+
+      <!-- 비밀번호 + 비밀번호 확인 -->
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">가입일 (입사일)</label>
-          <input type="date" th:field="*{joinDate}" class="form-control">
+          <label class="form-label">비밀번호 *</label>
+          <input type="password" th:field="*{password}" class="form-control"
+                 placeholder="8자 이상"  th:attr="minlength=8" required>
         </div>
         <div class="form-group">
-          <label class="form-label">퇴사일</label>
-          <input type="date" th:field="*{leaveDate}" class="form-control">
+          <label class="form-label">비밀번호 확인 *</label>
+          <input type="password" th:field="*{passwordCheck}" class="form-control"
+                 placeholder="재입력" required>
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary btn-full" style="margin-top:4px;">가입 완료</button>
+      <!-- 입사일 + 퇴사일 -->
+      <div class="form-group">
+  <label class="form-label">입사일</label>
+  <input type="date" th:field="*{joinDate}" class="form-control">
+</div>
+
+      <button type="submit" class="btn btn-primary btn-full"
+              style="margin-top:4px;">가입 완료</button>
     </form>
 
     <div class="form-switch">

@@ -22,8 +22,9 @@ public class ScheduleController {
 
     // 일정 목록 페이지
     @GetMapping("")
-    public String schedulePage(Model model) {
-        List<ResScheduleDTO> list = scheduleService.getScheduleList();
+    public String schedulePage(Model model, HttpSession session) {
+        List<ResScheduleDTO> list = scheduleService.getScheduleList(session);
+
         model.addAttribute("list", list);
         return "pages/home/schedule";
     }

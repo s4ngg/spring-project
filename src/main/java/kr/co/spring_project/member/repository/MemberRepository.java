@@ -1,12 +1,11 @@
 package kr.co.spring_project.member.repository;
 
 
-
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import kr.co.spring_project.member.entity.Member;
 
-public interface MemberRepository extends JpaRepository<Member, String>{
+public interface MemberRepository extends JpaRepository<Member, Long>{
 	
 	// 이메일 중복체크
 	boolean existsByEmail(String email);
