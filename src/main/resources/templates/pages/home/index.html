@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>홈 대시보드 — WorkSpace</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="app-wrap">
+
+  <!-- SIDEBAR -->
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+  <div class="main-content">
+    <!-- TOPBAR -->
+    <header th:replace="~{fragments/header :: topbar(title='홈 대시보드')}"></header>
+
+    <div class="content-body">
+      <div class="page-header">
+        <div>
+          <!-- th:text="'안녕하세요, ' + ${session.LOGIN_MEMBER.name} + ' ' + ${session.LOGIN_MEMBER.gradeName} + '님!'" -->
+          <div class="page-title">👋 안녕하세요, <span th:text="${session.LOGIN_MEMBER.name}">홍길동</span> <span th:text="${session.LOGIN_MEMBER.gradeName}">과장</span>님!</div>
+          <div class="page-sub" th:text="${#temporals.format(today, 'yyyy년 MM월 dd일 EEEE', new java.util.Locale('ko'))}">2025년 6월 20일 금요일</div>
+        </div>
+        <form th:action="@{/attendance/check-in}" method="post">
+          <button type="submit" class="btn btn-primary">⏰ 출근 체크</button>
+        </form>
+      </div>
+
+      <!-- 통계 카드 -->
+      <div class="stats-row">
+        <div class="stat-card c-blue fu">
+          <div class="sc-bar"></div>
+          <div class="stat-icon">📋</div>
+          <div class="stat-num" th:text="${attendanceCount}">12</div>
+          <div class="stat-label">이번달 출근일</div>
+          <div class="stat-chip up">정상 출근 중</div>
+        </div>
+        <div class="stat-card c-green fu">
+          <div class="sc-bar"></div>
+          <div class="stat-icon">✅</div>
+          <div class="stat-num" th:text="${approvalCount}">3</div>
+          <div class="stat-label">대기 중인 결재</div>
+          <div class="stat-chip info">확인 필요</div>
+        </div>
+        <div class="stat-card c-yellow fu">
+          <div class="sc-bar"></div>
+          <div class="stat-icon">📅</div>
+          <div class="stat-num" th:text="${scheduleCount}">5</div>
+          <div class="stat-label">이번주 일정</div>
+          <div class="stat-chip up">일정 있음</div>
+        </div>
+        <div class="stat-card c-red fu">
+          <div class="sc-bar"></div>
+          <div class="stat-icon">✉️</div>
+          <div class="stat-num" th:text="${unreadMessageCount}">8</div>
+          <div class="stat-label">읽지 않은 쪽지</div>
+          <div class="stat-chip warn">확인 필요</div>
+        </div>
+      </div>
+
+      <!-- 대시보드 그리드 -->
+      <div class="dash-grid">
+
+        <!-- 최신 공지 -->
+        <div class="card fu">
+          <div class="card-header">
+            <span class="card-title">📢 최신 공지사항</span>
+            <a th:href="@{/board/notice}" style="font-size:12px;color:var(--accent);font-weight:600;">전체보기 →</a>
+          </div>
+          <div class="card-body" style="padding:13px 18px;">
+            <div th:each="notice : ${recentNotices}" class="notice-item"
+                 th:onclick="|location.href='@{/board/notice/detail(id=${notice.boardId})}'|">
+              <div>
+                <div class="ni-title" th:text="${notice.title}">공지 제목</div>
+                <div class="ni-meta">
+                  <span th:text="${notice.writerName}">관리자</span> ·
+                  <span th:text="${#temporals.format(notice.createdAt, 'MM.dd')}">06.20</span>
+                </div>
+              </div>
+            </div>
+            <!-- 공지 없을 때 -->
+            <div th:if="${#lists.isEmpty(recentNotices)}" style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">
+              등록된 공지가 없습니다.
+            </div>
+          </div>
+        </div>
+
+        <!-- 오늘의 근태 -->
+        <div class="card fu">
+          <div class="card-header">
+            <span class="card-title">⏱ 오늘의 근태</span>
+            <span class="badge badge-green" th:text="${todayAttendance != null ? todayAttendance.status : '-'}">정상 출근</span>
+          </div>
+          <div class="card-body">
+            <div class="att-row">
+              <div>
+                <div class="att-label">출근 시간</div>
+                <div class="att-time"
+                     th:text="${todayAttendance != null and todayAttendance.checkIn != null}
+                               ? ${#temporals.format(todayAttendance.checkIn, 'HH:mm')} : '--:--'">09:02</div>
+              </div>
+              <span class="badge badge-green" th:if="${todayAttendance != null and todayAttendance.checkIn != null}">✓ 완료</span>
+            </div>
+            <div class="att-row">
+              <div>
+                <div class="att-label">퇴근 시간</div>
+                <div class="att-time"
+                     th:text="${todayAttendance != null and todayAttendance.checkOut != null}
+                               ? ${#temporals.format(todayAttendance.checkOut, 'HH:mm')} : '--:--'">--:--</div>
+              </div>
+              <form th:action="@{/attendance/check-out}" method="post"
+                    th:if="${todayAttendance != null and todayAttendance.checkIn != null and todayAttendance.checkOut == null}">
+                <button type="submit" class="att-btn out">퇴근 체크</button>
+              </form>
+            </div>
+            <!-- 이번달 요약 -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px;">
+              <div style="text-align:center;padding:10px 6px;background:var(--bg-page);border-radius:9px;border:1px solid var(--border);">
+                <div style="font-family:'Sora',sans-serif;font-size:19px;font-weight:800;color:var(--success);" th:text="${normalCount}">12</div>
+                <div style="font-size:11px;color:var(--text-muted);">정상</div>
+              </div>
+              <div style="text-align:center;padding:10px 6px;background:var(--bg-page);border-radius:9px;border:1px solid var(--border);">
+                <div style="font-family:'Sora',sans-serif;font-size:19px;font-weight:800;color:var(--warning);" th:text="${lateCount}">1</div>
+                <div style="font-size:11px;color:var(--text-muted);">지각</div>
+              </div>
+              <div style="text-align:center;padding:10px 6px;background:var(--bg-page);border-radius:9px;border:1px solid var(--border);">
+                <div style="font-family:'Sora',sans-serif;font-size:19px;font-weight:800;color:var(--accent);" th:text="${vacationCount}">2</div>
+                <div style="font-size:11px;color:var(--text-muted);">휴가</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 미니 캘린더 -->
+        <div class="card fu">
+          <div class="card-header"><span class="card-title">📅 캘린더</span></div>
+          <div class="card-body">
+            <div class="cal-header">
+              <button class="cal-nav">‹</button>
+              <span class="cal-month" th:text="${#temporals.format(today, 'yyyy년 MM월')}">2025년 6월</span>
+              <button class="cal-nav">›</button>
+            </div>
+            <div class="cal-grid">
+              <div class="cal-dh">일</div><div class="cal-dh">월</div>
+              <div class="cal-dh">화</div><div class="cal-dh">수</div>
+              <div class="cal-dh">목</div><div class="cal-dh">금</div>
+              <div class="cal-dh">토</div>
+              <!-- th:each="day : ${calendarDays}" -->
+              <!-- th:class="${day.today} ? 'cal-cell today' : (${day.currentMonth} ? 'cal-cell' : 'cal-cell other')" -->
+              <!-- th:text="${day.dayNum}" -->
+              <div class="cal-cell other">25</div><div class="cal-cell other">26</div>
+              <div class="cal-cell other">27</div><div class="cal-cell other">28</div>
+              <div class="cal-cell other">29</div><div class="cal-cell other">30</div>
+              <div class="cal-cell other">31</div>
+              <div class="cal-cell">1</div><div class="cal-cell">2</div>
+              <div class="cal-cell">3</div><div class="cal-cell has-ev">4</div>
+              <div class="cal-cell">5</div><div class="cal-cell">6</div><div class="cal-cell">7</div>
+              <div class="cal-cell">8</div><div class="cal-cell">9</div>
+              <div class="cal-cell has-ev">10</div><div class="cal-cell">11</div>
+              <div class="cal-cell">12</div><div class="cal-cell">13</div><div class="cal-cell">14</div>
+              <div class="cal-cell">15</div><div class="cal-cell">16</div>
+              <div class="cal-cell">17</div><div class="cal-cell">18</div>
+              <div class="cal-cell">19</div><div class="cal-cell today">20</div><div class="cal-cell">21</div>
+              <div class="cal-cell">22</div><div class="cal-cell">23</div>
+              <div class="cal-cell">24</div><div class="cal-cell has-ev">25</div>
+              <div class="cal-cell">26</div><div class="cal-cell">27</div><div class="cal-cell">28</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /dash-grid -->
+    </div><!-- /content-body -->
+  </div><!-- /main-content -->
+</div><!-- /app-wrap -->
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

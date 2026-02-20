@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>자료실 상세 — WorkSpace</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="app-wrap">
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+  <div class="main-content">
+    <header th:replace="~{fragments/header :: topbar(title='자료실')}"></header>
+    <div class="content-body">
+
+      <div class="card" style="max-width:760px;">
+        <div class="card-header">
+          <span class="card-title">파일 상세 정보</span>
+          <a th:href="@{/board/archive}" class="btn btn-outline btn-sm">← 목록</a>
+        </div>
+        <div class="card-body">
+
+          <!-- 파일 헤더 -->
+          <div style="display:flex;align-items:flex-start;gap:18px;margin-bottom:20px;">
+            <div th:class="'file-icon-big ' + ${archive.fileExt}" style="width:68px;height:68px;border-radius:15px;flex-shrink:0;">
+              <span th:switch="${archive.fileExt}">
+                <span th:case="'pdf'">📄</span>
+                <span th:case="'xlsx'">📊</span>
+                <span th:case="'docx'">📝</span>
+                <span th:case="'pptx'">📊</span>
+                <span th:case="'zip'">🗜</span>
+                <span th:case="*">📁</span>
+              </span>
+            </div>
+            <div style="flex:1;">
+              <div style="font-family:'Sora',sans-serif;font-size:18px;font-weight:700;color:var(--text-main);margin-bottom:8px;"
+                   th:text="${archive.originalName}">파일명.pdf</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <span class="badge badge-gray" th:text="${archive.categoryName}">카테고리</span>
+                <span class="badge badge-red" th:text="${#strings.toUpperCase(archive.fileExt)}">PDF</span>
+              </div>
+            </div>
+            <a th:href="@{/file/download(fileId=${archive.fileId})}" class="btn btn-primary" style="flex-shrink:0;">⬇ 다운로드</a>
+          </div>
+
+          <!-- 파일 메타 정보 -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px;background:var(--bg-page);border-radius:var(--radius);padding:15px;border:1px solid var(--border);margin-bottom:18px;">
+            <div>
+              <div class="field-label">파일 크기</div>
+              <div style="font-size:13.5px;font-weight:600;font-family:'JetBrains Mono',monospace;" th:text="${archive.fileSize}">245 KB</div>
+            </div>
+            <div>
+              <div class="field-label">업로드일</div>
+              <div style="font-size:13.5px;font-weight:600;" th:text="${#temporals.format(archive.createdAt,'yyyy.MM.dd')}">2025.06.10</div>
+            </div>
+            <div>
+              <div class="field-label">다운로드 수</div>
+              <div style="font-size:13.5px;font-weight:600;font-family:'JetBrains Mono',monospace;" th:text="${archive.downloadCount + '회'}">0회</div>
+            </div>
+            <div>
+              <div class="field-label">업로더</div>
+              <div style="font-size:13.5px;font-weight:600;" th:text="${archive.writerName}">총무팀</div>
+            </div>
+            <div>
+              <div class="field-label">수정일</div>
+              <div style="font-size:13.5px;font-weight:600;"
+                   th:text="${archive.updatedAt != null ? #temporals.format(archive.updatedAt,'yyyy.MM.dd') : '-'}">-</div>
+            </div>
+            <div>
+              <div class="field-label">조회수</div>
+              <div style="font-size:13.5px;font-weight:600;font-family:'JetBrains Mono',monospace;" th:text="${archive.viewCount + '회'}">0회</div>
+            </div>
+          </div>
+
+          <!-- 설명 -->
+          <div class="form-group" th:if="${archive.description != null and archive.description != ''}">
+            <div style="font-size:12px;font-weight:700;color:var(--text-sub);margin-bottom:7px;">설명</div>
+            <div style="padding:13px;background:var(--bg-page);border-radius:var(--radius);border:1px solid var(--border);font-size:13.5px;line-height:1.8;color:var(--text-main);"
+                 th:text="${archive.description}">파일 설명이 여기에 표시됩니다.</div>
+          </div>
+
+          <!-- 버튼 -->
+          <div class="post-actions">
+            <a th:href="@{/board/archive}" class="btn btn-outline btn-sm">← 목록</a>
+            <!-- 본인 또는 ADMIN만 수정/삭제 -->
+            <div class="post-actions-right"
+                 th:if="${session.LOGIN_MEMBER.memberId == archive.memberId or session.LOGIN_MEMBER.role == 'ADMIN'}">
+              <a th:href="@{/board/archive/edit(id=${archive.boardId})}" class="btn btn-outline btn-sm">수정</a>
+              <form th:action="@{/board/archive/delete}" method="post" style="display:inline;"
+                    onsubmit="return confirm('정말 삭제하시겠습니까?')">
+                <input type="hidden" name="id" th:value="${archive.boardId}">
+                <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

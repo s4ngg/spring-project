@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>공지사항 작성 — WorkSpace</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="app-wrap">
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+  <div class="main-content">
+    <header th:replace="~{fragments/header :: topbar(title='공지사항')}"></header>
+    <div class="content-body">
+
+      <div class="page-header">
+        <div>
+          <!-- 작성/수정 모드 구분 -->
+          <div class="page-title" th:text="${notice != null} ? '공지사항 수정' : '공지사항 작성'">공지사항 작성</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <form th:action="${notice != null} ? @{/board/notice/edit} : @{/board/notice/write}"
+                method="post" enctype="multipart/form-data"
+                th:object="${boardDto}">
+
+            <!-- 수정 시 ID 전달 -->
+            <input type="hidden" th:if="${notice != null}" name="boardId" th:value="${notice.boardId}">
+
+            <div class="form-group">
+              <label class="form-label">제목 *</label>
+              <input type="text" th:field="*{title}" class="form-control"
+                     placeholder="공지 제목을 입력하세요" required>
+            </div>
+
+            <div class="form-row" style="margin-bottom:15px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">공지 구분</label>
+                <select th:field="*{type}" class="form-control">
+                  <option value="NORMAL">일반 공지</option>
+                  <option value="IMPORTANT">중요 공지</option>
+                </select>
+              </div>
+              <div style="display:flex;align-items:flex-end;gap:18px;padding-bottom:2px;">
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-sub);cursor:pointer;">
+                  <input type="checkbox" name="isPinned" th:checked="${notice != null and notice.isPinned}" style="accent-color:var(--accent);">
+                  상단 고정
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-sub);cursor:pointer;">
+                  <input type="checkbox" name="isImportant" th:checked="${notice != null and notice.isImportant}" style="accent-color:var(--accent);">
+                  중요 표시
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">내용 *</label>
+              <textarea th:field="*{content}" class="editor-area"
+                        placeholder="내용을 입력하세요..." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">첨부파일</label>
+              <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+                <div class="uz-icon">📎</div>
+                <p>파일을 드래그하거나 클릭하여 업로드</p>
+                <small>최대 10MB / PDF, DOC, XLS, PNG, JPG</small>
+                <input type="file" id="fileInput" name="files" multiple style="display:none;"
+                       onchange="showFileNames(this)">
+              </div>
+              <div id="file-list" style="margin-top:8px;"></div>
+            </div>
+
+            <div class="form-actions">
+              <a th:href="@{/board/notice}" class="btn btn-outline">취소</a>
+              <button type="submit" class="btn btn-primary"
+                      th:text="${notice != null} ? '수정 완료' : '공지 등록'">공지 등록</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/script.js}"></script>
+<script>
+function showFileNames(input) {
+  const list = document.getElementById('file-list');
+  list.innerHTML = '';
+  Array.from(input.files).forEach(f => {
+    const chip = document.createElement('span');
+    chip.className = 'file-chip';
+    chip.style.marginRight = '8px';
+    chip.textContent = '📄 ' + f.name;
+    list.appendChild(chip);
+  });
+}
+</script>
+</body>
+</html>

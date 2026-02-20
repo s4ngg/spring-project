@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>공지사항 상세 — WorkSpace</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="app-wrap">
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+  <div class="main-content">
+    <header th:replace="~{fragments/header :: topbar(title='공지사항')}"></header>
+    <div class="content-body">
+
+      <div class="card" style="max-width:860px;">
+        <div class="card-body">
+
+          <!-- 배지 -->
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <span class="badge badge-red" th:if="${notice.isImportant}">중요</span>
+            <span class="badge badge-blue" th:if="${notice.isPinned}">상단 고정</span>
+            <span class="badge badge-gray">공지사항</span>
+          </div>
+
+          <!-- 제목 -->
+          <div class="post-title-big" th:text="${notice.title}">공지사항 제목</div>
+
+          <!-- 메타 정보 -->
+          <div class="post-meta-bar">
+            <span>👤 <span th:text="${notice.writerName}">관리자</span></span>
+            <span>📅 <span th:text="${#temporals.format(notice.createdAt, 'yyyy.MM.dd HH:mm')}">2025.06.20 09:30</span></span>
+            <span>👁 <span th:text="${notice.viewCount}">0</span>회</span>
+            <span th:if="${notice.files != null and !#lists.isEmpty(notice.files)}">
+              📎 첨부파일 <span th:text="${#lists.size(notice.files)}">1</span>개
+            </span>
+          </div>
+
+          <!-- 본문 -->
+          <div class="post-body" th:utext="${notice.content}">공지 내용이 여기에 표시됩니다.</div>
+
+          <!-- 첨부파일 -->
+          <div th:if="${notice.files != null and !#lists.isEmpty(notice.files)}" style="margin-top:15px;">
+            <div style="font-size:12px;font-weight:700;color:var(--text-sub);margin-bottom:8px;">📎 첨부파일</div>
+            <div th:each="file : ${notice.files}">
+              <a th:href="@{/file/download(fileId=${file.fileId})}" class="file-chip">
+                📄 <span th:text="${file.originalName}">파일명.pdf</span>
+                <span style="color:var(--text-muted);" th:text="'(' + ${file.fileSize} + ')'"></span>
+              </a>
+            </div>
+          </div>
+
+          <!-- 버튼 -->
+          <div class="post-actions">
+            <a th:href="@{/board/notice}" class="btn btn-outline btn-sm">← 목록</a>
+            <!-- ADMIN만 수정/삭제 표시 -->
+            <div class="post-actions-right" th:if="${session.LOGIN_MEMBER.role == 'ADMIN'}">
+              <a th:href="@{/board/notice/edit(id=${notice.boardId})}" class="btn btn-outline btn-sm">수정</a>
+              <form th:action="@{/board/notice/delete}" method="post" style="display:inline;"
+                    onsubmit="return confirm('정말 삭제하시겠습니까?')">
+                <input type="hidden" name="id" th:value="${notice.boardId}">
+                <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

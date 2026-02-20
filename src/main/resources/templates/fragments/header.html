@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<!-- ================================================
+     fragments/header.html
+     사용법: <header th:replace="~{fragments/header :: topbar(title='공지사항')}"></header>
+================================================ -->
+<header th:fragment="topbar(title)" class="topbar">
+
+  <span class="topbar-title" th:text="${title}">홈 대시보드</span>
+
+  <div class="topbar-search">
+    <span class="search-icon">🔍</span>
+    <input type="text" placeholder="검색어를 입력하세요...">
+  </div>
+
+  <div class="topbar-actions">
+    <button class="icon-btn" title="알림">
+      🔔
+      <span class="notif-dot"></span>
+    </button>
+    <a th:href="@{/message}" class="icon-btn" title="쪽지">✉️</a>
+
+    <a th:href="@{/member/mypage}" class="topbar-user">
+      <div class="t-avatar" th:text="${#strings.substring(session.LOGIN_MEMBER.name, 0, 1)}">홍</div>
+      <span th:text="${session.LOGIN_MEMBER.name}">홍길동</span>
+    </a>
+  </div>
+
+</header>
+</html>
