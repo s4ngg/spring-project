@@ -8,6 +8,7 @@ import kr.co.spring_project.member.dto.ReqloginDTO;
 import kr.co.spring_project.member.dto.ReqregisterDTO;
 import kr.co.spring_project.member.dto.ResloginDTO;
 import kr.co.spring_project.member.entity.Member;
+import kr.co.spring_project.member.repository.DepartmentRepository;
 import kr.co.spring_project.member.repository.MemberRepository;
 import kr.co.spring_project.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService{
 	
+	private final DepartmentRepository departmentRepository;
 	private final MemberRepository memberRepository;
 	private final BCryptPasswordEncoder passwordEncoder;
 	
@@ -44,6 +46,7 @@ public class MemberServiceImpl implements MemberService{
 		member.setPassword(encodedPassword);
 		member.setJoinDate(request.getJoinDate());   // ← 추가
 		member.setLeaveDate(request.getLeaveDate()); // ← 추가
+		member.setDeptId(null);
 		member.setRole("USER");
 		// 6. DB 저장
 		memberRepository.save(member);
