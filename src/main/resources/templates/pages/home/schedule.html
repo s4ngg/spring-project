@@ -1,139 +1,249 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>일정 캘린더 — WorkSpace</title>
-  <link rel="stylesheet" th:href="@{/css/styles.css}">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>일정 캘린더 — WorkSpace</title>
+<link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
-<div class="app-wrap">
-  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-  <div class="main-content">
-    <header th:replace="~{fragments/header :: topbar(title='일정 캘린더')}"></header>
-    <div class="content-body">
+	<div class="app-wrap">
+		<div th:replace="~{fragments/sidebar :: sidebar}"></div>
+		<div class="main-content">
+			<header th:replace="~{fragments/header :: topbar(title='일정 캘린더')}"></header>
+			<div class="content-body">
 
-      <div class="page-header">
-        <div>
-          <div class="page-title">📅 일정 캘린더</div>
-          <div class="page-sub">나의 일정을 등록하고 관리하세요</div>
-        </div>
-        <button class="btn btn-primary" onclick="openModal()">+ 일정 등록</button>
-      </div>
+				<div class="page-header">
+					<div>
+						<div class="page-title">📅 일정 캘린더</div>
+						<div class="page-sub">나의 일정을 등록하고 관리하세요</div>
+					</div>
+					<button class="btn btn-primary"
+						th:onclick="${session.LOGIN_MEMBER != null} ? 'openModal()' : 'alert(\'로그인이 필요합니다!\')'">
+						+ 일정 등록</button>
+				</div>
 
-      <!-- 일정 목록 카드 -->
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">📋 전체 일정</span>
-          <div style="display:flex;gap:8px;">
-            <select class="filter-select" onchange="filterSchedule(this.value)">
-              <option value="">전체</option>
-              <option value="public">공개</option>
-              <option value="private">비공개</option>
-            </select>
-          </div>
-        </div>
-        <div class="card-body" style="padding:0;">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th style="width:60px;">번호</th>
-                <th>제목</th>
-                <th style="width:160px;">시작일시</th>
-                <th style="width:160px;">종료일시</th>
-                <th style="width:70px;">공개여부</th>
-                <th style="width:80px;">액션</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- th:each="schedule : ${list}" -->
-              <tr th:each="schedule : ${list}"
-                  th:onclick="|location.href='@{/schedule/{id}(id=${schedule.scheduleId})}'|">
-                <td class="muted" th:text="${schedule.scheduleId}">1</td>
-                <td class="bold" th:text="${schedule.title}">일정 제목</td>
-                <td class="muted" th:text="${#temporals.format(schedule.startDt, 'yyyy.MM.dd HH:mm')}">2025.06.20 09:00</td>
-                <td class="muted" th:text="${#temporals.format(schedule.endAt, 'yyyy.MM.dd HH:mm')}">2025.06.20 18:00</td>
-                <td>
-                  <span class="badge badge-blue" th:if="${schedule.isPublic}">공개</span>
-                  <span class="badge badge-gray" th:unless="${schedule.isPublic}">비공개</span>
-                </td>
-                <td>
-                  <form th:action="@{/schedule/delete/{id}(id=${schedule.scheduleId})}"
-                        method="post" style="display:inline;"
-                        onsubmit="return confirm('삭제하시겠습니까?')"
-                        onclick="event.stopPropagation()">
-                    <button type="submit" class="btn btn-danger btn-xs">삭제</button>
-                  </form>
-                </td>
-              </tr>
-              <!-- 목록 없을 때 -->
-              <tr th:if="${#lists.isEmpty(list)}">
-                <td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted);">
-                  등록된 일정이 없습니다.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+				<!-- 일정 목록 카드 -->
+				<div class="card">
+					<div class="card-header">
+						<span class="card-title">📋 전체 일정</span> <select
+							class="filter-select">
+							<option value="">전체</option>
+							<option value="public">공개</option>
+							<option value="private">비공개</option>
+						</select>
+					</div>
+					<div class="card-body" style="padding: 0;">
+						<table class="data-table">
+							<thead>
+								<tr>
+									<th style="width: 60px;">번호</th>
+									<th>제목</th>
+									<th style="width: 160px;">시작일시</th>
+									<th style="width: 160px;">종료일시</th>
+									<th style="width: 70px;">공개여부</th>
+									<th style="width: 120px;">액션</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="schedule : ${list}">
+									<td class="muted" th:text="${schedule.scheduleId}">1</td>
+									<td class="bold" th:text="${schedule.title}">일정 제목</td>
+									<td class="muted"
+										th:text="${#temporals.format(schedule.startDt, 'yyyy.MM.dd HH:mm')}">2025.06.20
+										09:00</td>
+									<td class="muted"
+										th:text="${#temporals.format(schedule.endAt, 'yyyy.MM.dd HH:mm')}">2025.06.20
+										18:00</td>
+									<td><span class="badge badge-blue"
+										th:if="${schedule.isPublic}">공개</span> <span
+										class="badge badge-gray" th:unless="${schedule.isPublic}">비공개</span>
+									</td>
+									<td style="display: flex; gap: 6px;">
+										<!-- 상세 보기 버튼 -->
+										<button class="btn btn-outline btn-xs"
+											th:attr="data-id=${schedule.scheduleId},
+                 data-title=${schedule.title},
+                 data-content=${schedule.content},
+                 data-start=${#temporals.format(schedule.startDt, 'yyyy.MM.dd HH:mm')},
+                 data-end=${#temporals.format(schedule.endAt, 'yyyy.MM.dd HH:mm')},
+                 data-public=${schedule.isPublic}"
+											onclick="openDetail(this)">확인</button> <!-- 삭제 버튼 -->
+										<form
+											th:action="@{/schedule/delete/{id}(id=${schedule.scheduleId})}"
+											method="post" style="display: inline;"
+											onsubmit="return confirm('삭제하시겠습니까?')">
+											<button type="submit" class="btn btn-danger btn-xs">삭제</button>
+										</form>
+									</td>
+								</tr>
+								<tr th:if="${#lists.isEmpty(list)}">
+									<td colspan="6"
+										style="text-align: center; padding: 40px; color: var(--text-muted);">
+										등록된 일정이 없습니다.</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
 
-      <!-- 일정 등록 모달 -->
-      <div id="schedule-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:999;display:none;align-items:center;justify-content:center;">
-        <div class="card" style="width:520px;max-width:90%;">
-          <div class="card-header">
-            <span class="card-title">📅 일정 등록</span>
-            <button onclick="closeModal()" style="font-size:18px;color:var(--text-muted);cursor:pointer;">✕</button>
-          </div>
-          <div class="card-body">
-            <form th:action="@{/schedule/create}" method="post">
-              <div class="form-group">
-                <label class="form-label">제목 *</label>
-                <input type="text" name="title" class="form-control" placeholder="일정 제목을 입력하세요" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label">내용</label>
-                <textarea name="content" class="editor-area" style="min-height:100px;" placeholder="일정 내용을 입력하세요"></textarea>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">시작 일시 *</label>
-                  <input type="datetime-local" name="startDt" class="form-control" required>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">종료 일시 *</label>
-                  <input type="datetime-local" name="endAt" class="form-control" required>
-                </div>
-              </div>
-              <div class="form-group">
-                <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text-sub);cursor:pointer;">
-                  <input type="checkbox" name="isPublic" value="true" style="accent-color:var(--accent);">
-                  전체 공개
-                </label>
-              </div>
-              <div class="form-actions">
-                <button type="button" class="btn btn-outline" onclick="closeModal()">취소</button>
-                <button type="submit" class="btn btn-primary">등록</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+				<!-- 일정 등록 모달 -->
+				<div id="schedule-modal"
+					style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); z-index: 999; align-items: center; justify-content: center;">
+					<div class="card" style="width: 520px; max-width: 90%;">
+						<div class="card-header">
+							<span class="card-title">📅 일정 등록</span>
+							<button onclick="closeModal()"
+								style="font-size: 18px; color: var(--text-muted); cursor: pointer;">✕</button>
+						</div>
+						<div class="card-body">
+							<form th:action="@{/schedule/create}" method="post">
+								<div class="form-group">
+									<label class="form-label">제목 *</label> <input type="text"
+										name="title" class="form-control" placeholder="일정 제목을 입력하세요"
+										required>
+								</div>
+								<div class="form-group">
+									<label class="form-label">내용</label>
+									<textarea name="content" class="editor-area"
+										style="min-height: 100px;" placeholder="일정 내용을 입력하세요"></textarea>
+								</div>
+								<div class="form-row">
+									<div class="form-group">
+										<label class="form-label">시작 일시 *</label> <input
+											type="datetime-local" id="startDt" name="startDt"
+											class="form-control" required
+											onchange="setMinEndDate(this.value)">
+									</div>
+									<div class="form-group">
+										<label class="form-label">종료 일시 *</label> <input
+											type="datetime-local" id="endAt" name="endAt"
+											class="form-control" required>
+									</div>
+								</div>
+								<div class="form-group">
+									<label
+										style="display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--text-sub); cursor: pointer;">
+										<input type="checkbox" name="isPublic" value="true"
+										style="accent-color: var(--accent);"> 전체 공개
+									</label>
+								</div>
+								<div class="form-actions">
+									<button type="button" class="btn btn-outline"
+										onclick="closeModal()">취소</button>
+									<button type="submit" class="btn btn-primary">등록</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
 
-    </div>
-  </div>
-</div>
-<script th:src="@{/js/script.js}"></script>
-<script>
-function openModal() {
-  document.getElementById('schedule-modal').style.display = 'flex';
+				<!-- 일정 상세 모달 -->
+				<div id="detail-modal"
+					style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); z-index: 999; align-items: center; justify-content: center;">
+					<div class="card" style="width: 520px; max-width: 90%;">
+						<div class="card-header">
+							<span class="card-title">📅 일정 상세</span>
+							<button onclick="closeDetail()"
+								style="font-size: 18px; color: var(--text-muted); cursor: pointer;">✕</button>
+						</div>
+						<div class="card-body">
+							<div style="display: flex; flex-direction: column; gap: 13px;">
+								<div>
+									<div class="field-label">제목</div>
+									<div class="field-value" id="detail-title"></div>
+								</div>
+								<div>
+									<div class="field-label">내용</div>
+									<div class="field-value" id="detail-content"></div>
+								</div>
+								<div
+									style="display: grid; grid-template-columns: 1fr 1fr; gap: 11px;">
+									<div>
+										<div class="field-label">시작 일시</div>
+										<div class="field-value" id="detail-start"
+											style="color: var(--accent); font-weight: 700;"></div>
+									</div>
+									<div>
+										<div class="field-label">종료 일시</div>
+										<div class="field-value" id="detail-end"></div>
+									</div>
+								</div>
+								<div>
+									<div class="field-label">공개 여부</div>
+									<div id="detail-public"></div>
+								</div>
+							</div>
+							<div class="form-actions" style="margin-top: 18px;">
+								<button class="btn btn-outline" onclick="closeDetail()">닫기</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<script th:src="@{/js/script.js}"></script>
+	<script>
+  // 오늘 날짜를 시작일시 최솟값으로 설정
+  window.onload = function () {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mi = String(now.getMinutes()).padStart(2, '0');
+    const minVal = `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+    document.getElementById('startDt').min = minVal;
+  };
+
+  // 시작일시 선택하면 종료일시 최솟값 자동 설정
+  function setMinEndDate(val) {
+    const endInput = document.getElementById('endAt');
+    endInput.min = val;
+    if (endInput.value && endInput.value < val) {
+      endInput.value = val;
+    }
+  }
+
+  // 등록 모달
+  function openModal() {
+    document.getElementById('schedule-modal').style.display = 'flex';
+  }
+  function closeModal() {
+    document.getElementById('schedule-modal').style.display = 'none';
+  }
+
+  // 상세 모달
+  function openDetail(btn) {
+  document.getElementById('detail-title').textContent = btn.getAttribute('data-title');
+  document.getElementById('detail-content').textContent = btn.getAttribute('data-content') || '(내용 없음)';
+  document.getElementById('detail-start').textContent = btn.getAttribute('data-start');
+  document.getElementById('detail-end').textContent = btn.getAttribute('data-end');
+
+  const isPublic = btn.getAttribute('data-public');
+  document.getElementById('detail-public').innerHTML =
+    (isPublic === 'true' || isPublic === true)
+      ? '<span class="badge badge-blue">공개</span>'
+      : '<span class="badge badge-gray">비공개</span>';
+
+  document.getElementById('detail-modal').style.display = 'flex';
 }
-function closeModal() {
-  document.getElementById('schedule-modal').style.display = 'none';
+function closeDetail() {
+  document.getElementById('detail-modal').style.display = 'none';
 }
-// 모달 바깥 클릭시 닫기
-document.getElementById('schedule-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
+  function closeDetail() {
+    document.getElementById('detail-modal').style.display = 'none';
+  }
+
+  // 모달 바깥 클릭시 닫기
+  document.getElementById('schedule-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+  document.getElementById('detail-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeDetail();
+  });
 </script>
 </body>
 </html>

@@ -14,7 +14,7 @@ import lombok.ToString;
 @ToString // 모든 필드에 있는 값을 문자열 형태로 반환
 @Data 
 public class ReqregisterDTO {
-	private String employee_no;
+	private Long employeeNo;
 	private String username;
 	private String gender;
 	private String email;

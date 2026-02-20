@@ -37,8 +37,8 @@ public class MemberServiceImpl implements MemberService{
 		
 		// 5. Member 엔티티 생성
 		Member member = new Member();
-		member.setEmployee_no(request.getEmployee_no());
-		member.setUsername(request.getUsername());
+		member.setEmployeeNo(request.getEmployeeNo());
+		member.setName(request.getUsername());
 		member.setEmail(request.getEmail());
 		member.setPassword(encodedPassword);
 		// 강제 유저 부여
@@ -65,12 +65,13 @@ public class MemberServiceImpl implements MemberService{
 		}
 		
 		ResloginDTO response = new ResloginDTO();
-		response.setEmployee_no(member.getEmployee_no());
+		response.setEmployeeNo(member.getEmployeeNo());   // ← 수정
 		response.setEmail(member.getEmail());
-		response.setUsername(member.getUsername());
+		response.setUsername(member.getName());
+		response.setRole(member.getRole());               // ← 추가
 		response.setCreatedAt(member.getCreatedAt());
 		response.setUpdatedAt(member.getUpdatedAt());
-		
+
 		return response;
 	}
 }
