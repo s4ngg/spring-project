@@ -1,14 +1,19 @@
 package kr.co.spring_project.member.service.impl;
 
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import kr.co.spring_project.member.dto.ReqloginDTO;
 import kr.co.spring_project.member.dto.ReqregisterDTO;
 import kr.co.spring_project.member.dto.ResloginDTO;
+import kr.co.spring_project.member.entity.Member;
 import kr.co.spring_project.member.repository.MemberRepository;
 import kr.co.spring_project.member.service.MemberService;
-import kr.co.study.member.entity.Member;
+import lombok.RequiredArgsConstructor;
 
+@Service
+@RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService{
 	
 	private final MemberRepository memberRepository;
@@ -32,15 +37,40 @@ public class MemberServiceImpl implements MemberService{
 		
 		// 5. Member 엔티티 생성
 		Member member = new Member();
-		member.setUserId(request.getUserId());
-		member.setUserName(request.getUserName());
+		member.setEmployee_no(request.getEmployee_no());
+		member.setUsername(request.getUsername());
 		member.setEmail(request.getEmail());
 		member.setPassword(encodedPassword);
-		
+		// 강제 유저 부여
+		member.setRole("USER");
 		// 6. DB 저장
 		memberRepository.save(member);
 	}
 	
 	// 로그인처리
-	ResloginDTO login(ReqloginDTO request);
+	@Override
+	public ResloginDTO login(ReqloginDTO request) {
+		Member member = memberRepository.findByEmail(request.getEmail());
+		// 2. 존재하지 않으면 null 반환
+		if(member == null){
+			return null;
+		}
+		
+		// 3. 사용자가 입력한 비밀번호가 암호화된 비밀번호와 일치하는지 검증
+		//  - 일치하면 응답 객체 반환
+		//  - 일치하지 않으면 null 반환
+		
+		if(!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
+			return null;
+		}
+		
+		ResloginDTO response = new ResloginDTO();
+		response.setEmployee_no(member.getEmployee_no());
+		response.setEmail(member.getEmail());
+		response.setUsername(member.getUsername());
+		response.setCreatedAt(member.getCreatedAt());
+		response.setUpdatedAt(member.getUpdatedAt());
+		
+		return response;
+	}
 }
