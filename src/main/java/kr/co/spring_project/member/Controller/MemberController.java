@@ -1,9 +1,11 @@
 package kr.co.spring_project.member.Controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
 import jakarta.servlet.http.HttpSession;
 import kr.co.spring_project.member.dto.ReqloginDTO;
 import kr.co.spring_project.member.dto.ReqregisterDTO;
@@ -20,7 +22,8 @@ public class MemberController {
 
     // 회원가입 페이지
     @GetMapping("/register")
-    public String registerForm() {
+    public String registerForm(Model model) {
+        model.addAttribute("memberDto", new ReqregisterDTO()); // ← 추가
         return "pages/member/register";
     }
 

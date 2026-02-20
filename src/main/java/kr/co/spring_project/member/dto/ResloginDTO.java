@@ -13,9 +13,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ResloginDTO {
     private Long employeeNo;        // String → Long 변경
-    private String username;
+    private String name;
     private String email;
-    private String role;            // ← 추가
+    private String role;         
+    private String gradeName;   
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    
+    
 }

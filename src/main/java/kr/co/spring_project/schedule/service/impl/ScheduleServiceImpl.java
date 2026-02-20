@@ -28,7 +28,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         // 1. 로그인 체크
         if (session.getAttribute("LOGIN_MEMBER") == null) {
             throw new RuntimeException("로그인이 필요합니다.");
-        }
+        } 
 
         // 2. 시작일시 > 종료일시 검증
         if (dto.getStartDt().isAfter(dto.getEndAt())) {
@@ -48,7 +48,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     // 전체 조회
     @Override
-    public List<ResScheduleDTO> getScheduleList() {
+    public List<ResScheduleDTO> getScheduleList(HttpSession session) {
         return scheduleRepository.findAll()
                 .stream()
                 .map(s -> ResScheduleDTO.builder()
