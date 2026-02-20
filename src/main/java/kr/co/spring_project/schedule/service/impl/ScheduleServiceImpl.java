@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.servlet.http.HttpSession;
+import kr.co.spring_project.member.dto.ResloginDTO;
 import kr.co.spring_project.schedule.dto.ReqScheduleDTO;
 import kr.co.spring_project.schedule.dto.ResScheduleDTO;
 import kr.co.spring_project.schedule.entity.Schedule;
@@ -21,7 +23,18 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     // 일정 등록
     @Override
-    public void createSchedule(ReqScheduleDTO dto) {
+    public void createSchedule(ReqScheduleDTO dto, HttpSession session) {
+
+        // 1. 로그인 체크
+        if (session.getAttribute("LOGIN_MEMBER") == null) {
+            throw new RuntimeException("로그인이 필요합니다.");
+        }
+
+        // 2. 시작일시 > 종료일시 검증
+        if (dto.getStartDt().isAfter(dto.getEndAt())) {
+            throw new RuntimeException("종료일시는 시작일시보다 늦어야 합니다.");
+        }
+
         Schedule schedule = Schedule.builder()
                 .title(dto.getTitle())
                 .content(dto.getContent())
@@ -81,7 +94,23 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     // 삭제
     @Override
-    public void deleteSchedule(Long scheduleId) {
+    public void deleteSchedule(Long scheduleId, HttpSession session) {
+
+        // 1. 로그인 체크
+        ResloginDTO loginMember = 
+            (ResloginDTO) session.getAttribute("LOGIN_MEMBER");
+        if (loginMember == null) {
+            throw new RuntimeException("로그인이 필요합니다.");
+        }
+
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+            .orElseThrow(() -> new RuntimeException("해당 일정이 없습니다."));
+
+        // 2. 본인 or 관리자만 삭제 가능
+        if (!schedule.getMember().getEmployeeNo().equals(loginMember.getEmployeeNo())
+        	    && !loginMember.getRole().equals("ADMIN")) {
+
         scheduleRepository.deleteById(scheduleId);
+        }
     }
 }

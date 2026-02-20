@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReqloginDTO {
-	private String employee_no;
+	private Long employee_no;
 	private String email;
 	private String password;
 }
