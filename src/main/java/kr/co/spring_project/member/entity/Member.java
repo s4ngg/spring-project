@@ -1,4 +1,4 @@
-package kr.co.SpringProject.member.entity;
+package kr.co.spring_project.member.entity;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +17,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class member {
+public class Member {
 	@Id // PK(Primary Key) 지정
 	@GeneratedValue(strategy = GenerationType.IDENTITY) //기본 키 자동 증가
 	private String employee_no;
