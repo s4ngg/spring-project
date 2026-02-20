@@ -1,4 +1,4 @@
-package kr.co.spring_project.attendance.controller;
+ package kr.co.spring_project.attendance.controller;
 
 
 import org.springframework.stereotype.Controller;
