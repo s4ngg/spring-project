@@ -18,15 +18,25 @@
 
     <div class="content-body">
       <div class="page-header">
-        <div>
-          <!-- th:text="'안녕하세요, ' + ${session.LOGIN_MEMBER.name} + ' ' + ${session.LOGIN_MEMBER.gradeName} + '님!'" -->
-          <div class="page-title">👋 안녕하세요, <span th:text="${session.LOGIN_MEMBER.name}">홍길동</span> <span th:text="${session.LOGIN_MEMBER.gradeName}">과장</span>님!</div>
-          <div class="page-sub" th:text="${#temporals.format(today, 'yyyy년 MM월 dd일 EEEE', new java.util.Locale('ko'))}">2025년 6월 20일 금요일</div>
-        </div>
-        <form th:action="@{/attendance/check-in}" method="post">
-          <button type="submit" class="btn btn-primary">⏰ 출근 체크</button>
-        </form>
-      </div>
+  <div>
+    <!-- 로그인 됐을 때 -->
+    <div class="page-title" th:if="${session.LOGIN_MEMBER != null}">
+      👋 안녕하세요,
+      <span th:text="${session.LOGIN_MEMBER.name}">홍길동</span>
+      <span th:text="${session.LOGIN_MEMBER.gradeName}">과장</span>님!
+    </div>
+    <!-- 로그인 안됐을 때 -->
+    <div class="page-title" th:unless="${session.LOGIN_MEMBER != null}">
+      👋 안녕하세요! 로그인이 필요합니다.
+    </div>
+    <div class="page-sub"
+         th:text="${#temporals.format(today, 'yyyy년 MM월 dd일 EEEE',
+                   new java.util.Locale('ko'))}">2025년 6월 20일 금요일</div>
+  </div>
+  <form th:action="@{/attendance/check-in}" method="post">
+    <button type="submit" class="btn btn-primary">⏰ 출근 체크</button>
+  </form>
+</div>
 
       <!-- 통계 카드 -->
       <div class="stats-row">

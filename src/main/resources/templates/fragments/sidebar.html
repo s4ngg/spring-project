@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
-<!-- ================================================
-     fragments/sidebar.html
-     사용법: <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-================================================ -->
 <aside th:fragment="sidebar" class="sidebar">
 
   <div class="sidebar-brand">
@@ -15,65 +11,69 @@
     </div>
   </div>
 
-  <!-- 로그인 사용자 정보 -->
-  <!-- th:if="${session.LOGIN_MEMBER != null}" -->
-  <div class="sidebar-user">
-    <div class="u-avatar" th:text="${#strings.substring(session.LOGIN_MEMBER.name, 0, 1)}">홍</div>
+  <!-- 로그인 됐을 때 -->
+  <div class="sidebar-user" th:if="${session.LOGIN_MEMBER != null}">
+    <div class="u-avatar"
+         th:text="${#strings.substring(session.LOGIN_MEMBER.name, 0, 1)}">홍</div>
     <div>
-      <div class="u-name" th:text="${session.LOGIN_MEMBER.name + ' ' + session.LOGIN_MEMBER.gradeName}">홍길동 과장</div>
-      <div class="u-role" th:text="${session.LOGIN_MEMBER.deptName + ' · ' + session.LOGIN_MEMBER.role}">개발팀 · USER</div>
+      <div class="u-name"
+           th:text="${session.LOGIN_MEMBER.name + ' ' + session.LOGIN_MEMBER.gradeName}">홍길동 과장</div>
+      <div class="u-role"
+           th:text="${session.LOGIN_MEMBER.deptName + ' · ' + session.LOGIN_MEMBER.role}">개발팀 · USER</div>
+    </div>
+  </div>
+
+  <!-- 로그인 안됐을 때 -->
+  <div class="sidebar-user" th:unless="${session.LOGIN_MEMBER != null}">
+    <div class="u-avatar">?</div>
+    <div>
+      <div class="u-name">로그인이 필요합니다</div>
     </div>
   </div>
 
   <nav class="sidebar-nav">
     <div class="nav-section">메인</div>
-    <a th:href="@{/}" class="nav-item" th:classappend="${currentPage == 'home'} ? 'active'">
+    <a th:href="@{/}" class="nav-item"
+       th:classappend="${currentPage == 'home'} ? 'active'">
       <div class="nav-icon">🏠</div>
       <span class="nav-label">홈 대시보드</span>
     </a>
 
     <div class="nav-section">게시판</div>
-    <a th:href="@{/board/notice}" class="nav-item" th:classappend="${currentPage == 'notice'} ? 'active'">
+    <a th:href="@{/board/notice}" class="nav-item"
+       th:classappend="${currentPage == 'notice'} ? 'active'">
       <div class="nav-icon">📢</div>
       <span class="nav-label">공지사항</span>
     </a>
-    <a th:href="@{/board/archive}" class="nav-item" th:classappend="${currentPage == 'archive'} ? 'active'">
+    <a th:href="@{/board/archive}" class="nav-item"
+       th:classappend="${currentPage == 'archive'} ? 'active'">
       <div class="nav-icon">📁</div>
       <span class="nav-label">자료실</span>
     </a>
 
     <div class="nav-section">업무</div>
-    <a th:href="@{/attendance}" class="nav-item" th:classappend="${currentPage == 'attendance'} ? 'active'">
+    <a th:href="@{/attendance}" class="nav-item"
+       th:classappend="${currentPage == 'attendance'} ? 'active'">
       <div class="nav-icon">⏱</div>
       <span class="nav-label">근태 관리</span>
     </a>
-    <a th:href="@{/schedule}" class="nav-item" th:classappend="${currentPage == 'schedule'} ? 'active'">
+    <a th:href="@{/schedule}" class="nav-item"
+       th:classappend="${currentPage == 'schedule'} ? 'active'">
       <div class="nav-icon">📅</div>
       <span class="nav-label">일정 캘린더</span>
     </a>
-    <a th:href="@{/approval}" class="nav-item" th:classappend="${currentPage == 'approval'} ? 'active'">
-      <div class="nav-icon">✅</div>
-      <span class="nav-label">결재 시스템</span>
-    </a>
-
-    <div class="nav-section">소통</div>
-    <a th:href="@{/message}" class="nav-item" th:classappend="${currentPage == 'message'} ? 'active'">
-      <div class="nav-icon">✉️</div>
-      <span class="nav-label">쪽지함</span>
-    </a>
-    <a th:href="@{/inquiry}" class="nav-item" th:classappend="${currentPage == 'inquiry'} ? 'active'">
-      <div class="nav-icon">🎧</div>
-      <span class="nav-label">1:1 문의</span>
-    </a>
 
     <div class="nav-section">내 정보</div>
-    <a th:href="@{/member/mypage}" class="nav-item" th:classappend="${currentPage == 'mypage'} ? 'active'">
+    <a th:href="@{/member/mypage}" class="nav-item"
+       th:classappend="${currentPage == 'mypage'} ? 'active'">
       <div class="nav-icon">👤</div>
       <span class="nav-label">마이페이지</span>
     </a>
+
     <!-- 관리자 메뉴 (ADMIN만 표시) -->
-    <a th:if="${session.LOGIN_MEMBER.role == 'ADMIN'}"
-       th:href="@{/admin}" class="nav-item" th:classappend="${currentPage == 'admin'} ? 'active'">
+    <a th:if="${session.LOGIN_MEMBER != null and session.LOGIN_MEMBER.role == 'ADMIN'}"
+       th:href="@{/admin}" class="nav-item"
+       th:classappend="${currentPage == 'admin'} ? 'active'">
       <div class="nav-icon">⚙️</div>
       <span class="nav-label">관리자 메뉴</span>
     </a>
