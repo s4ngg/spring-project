@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>자료실 — WorkSpace</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="app-wrap">
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+  <div class="main-content">
+    <header th:replace="~{fragments/header :: topbar(title='자료실')}"></header>
+    <div class="content-body">
+
+      <div class="page-header">
+        <div>
+          <div class="page-title">📁 자료실</div>
+          <div class="page-sub">사내 문서, 양식, 참고자료를 공유하는 공간입니다</div>
+        </div>
+        <a th:href="@{/board/archive/write}" class="btn btn-primary">⬆️ 자료 업로드</a>
+      </div>
+
+      <!-- 카테고리 탭 -->
+      <div class="cat-tabs">
+        <a th:href="@{/board/archive}" class="cat-tab" th:classappend="${category == null or category == ''} ? 'active'">전체</a>
+        <a th:href="@{/board/archive(category='HR')}" class="cat-tab" th:classappend="${category == 'HR'} ? 'active'">인사/총무</a>
+        <a th:href="@{/board/archive(category='DEV')}" class="cat-tab" th:classappend="${category == 'DEV'} ? 'active'">개발/기술</a>
+        <a th:href="@{/board/archive(category='PLAN')}" class="cat-tab" th:classappend="${category == 'PLAN'} ? 'active'">기획/마케팅</a>
+        <a th:href="@{/board/archive(category='FIN')}" class="cat-tab" th:classappend="${category == 'FIN'} ? 'active'">재무/회계</a>
+        <a th:href="@{/board/archive(category='FORM')}" class="cat-tab" th:classappend="${category == 'FORM'} ? 'active'">사내 양식</a>
+      </div>
+
+      <!-- 툴바 -->
+      <div class="toolbar">
+        <form th:action="@{/board/archive}" method="get" style="display:flex;gap:9px;flex:1;">
+          <input type="hidden" name="category" th:value="${category}">
+          <div class="search-wrap">
+            <span class="si">🔍</span>
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="파일명, 설명으로 검색...">
+          </div>
+          <select name="ext" class="filter-select">
+            <option value="">전체 형식</option>
+            <option value="pdf" th:selected="${ext == 'pdf'}">PDF</option>
+            <option value="xlsx" th:selected="${ext == 'xlsx'}">Excel</option>
+            <option value="docx" th:selected="${ext == 'docx'}">Word</option>
+            <option value="pptx" th:selected="${ext == 'pptx'}">PPT</option>
+            <option value="zip" th:selected="${ext == 'zip'}">ZIP</option>
+          </select>
+          <select name="sort" class="filter-select">
+            <option value="latest" th:selected="${sort == 'latest'}">최신순</option>
+            <option value="download" th:selected="${sort == 'download'}">다운로드순</option>
+            <option value="name" th:selected="${sort == 'name'}">이름순</option>
+          </select>
+          <button type="submit" class="btn btn-outline btn-sm">검색</button>
+        </form>
+        <!-- 뷰 전환 -->
+        <div class="view-toggle">
+          <button class="view-btn active" id="btn-grid" onclick="setView('grid')" title="그리드">⊞</button>
+          <button class="view-btn" id="btn-table" onclick="setView('table')" title="목록">☰</button>
+        </div>
+      </div>
+
+      <!-- 그리드 뷰 -->
+      <div id="view-grid" class="archive-grid">
+        <!-- th:each="file : ${list}" -->
+        <div th:each="file : ${list}"
+             th:class="'archive-card ' + ${file.fileExt}"
+             th:onclick="|location.href='@{/board/archive/detail(id=${file.boardId})}'|">
+          <div class="file-icon-big">
+            <span th:switch="${file.fileExt}">
+              <span th:case="'pdf'">📄</span>
+              <span th:case="'xlsx'">📊</span>
+              <span th:case="'docx'">📝</span>
+              <span th:case="'pptx'">📊</span>
+              <span th:case="'zip'">🗜</span>
+              <span th:case="*">📁</span>
+            </span>
+          </div>
+          <div class="arc-filename" th:text="${file.originalName}">파일명.pdf</div>
+          <div class="arc-meta">
+            <span th:text="${file.writerName}">총무팀</span>
+            <span th:text="${file.fileSize}">245KB</span>
+          </div>
+          <div class="arc-meta" style="margin-top:3px;">
+            <span th:text="${#temporals.format(file.createdAt,'yyyy.MM.dd')}">2025.06.10</span>
+            <span>⬇ <span th:text="${file.downloadCount}">0</span></span>
+          </div>
+          <div class="arc-actions">
+            <button class="btn btn-outline btn-xs" onclick="event.stopPropagation();">상세보기</button>
+            <a th:href="@{/file/download(fileId=${file.fileId})}"
+               class="btn btn-primary btn-xs" onclick="event.stopPropagation();">다운로드</a>
+          </div>
+        </div>
+        <!-- 목록 없을 때 -->
+        <div th:if="${#lists.isEmpty(list)}" style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">
+          등록된 자료가 없습니다.
+        </div>
+      </div>
+
+      <!-- 테이블 뷰 -->
+      <div id="view-table" style="display:none;">
+        <div class="card">
+          <div class="card-body" style="padding:0;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:55px;">번호</th>
+                  <th>파일명</th>
+                  <th style="width:90px;">카테고리</th>
+                  <th style="width:80px;">업로더</th>
+                  <th style="width:70px;">크기</th>
+                  <th style="width:100px;">업로드일</th>
+                  <th style="width:65px;">다운로드</th>
+                  <th style="width:80px;">액션</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="file : ${list}"
+                    th:onclick="|location.href='@{/board/archive/detail(id=${file.boardId})}'|">
+                  <td class="muted" th:text="${file.boardId}">1</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:11px;">
+                      <div th:class="'arc-ext-badge ext-' + ${file.fileExt}" th:text="${#strings.toUpperCase(file.fileExt)}">PDF</div>
+                      <div>
+                        <div class="bold" th:text="${file.originalName}">파일명.pdf</div>
+                        <div style="font-size:11px;color:var(--text-muted);margin-top:2px;" th:text="${file.description}">설명</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-gray" th:text="${file.categoryName}">카테고리</span></td>
+                  <td class="muted" th:text="${file.writerName}">업로더</td>
+                  <td class="muted" th:text="${file.fileSize}">245KB</td>
+                  <td class="muted" th:text="${#temporals.format(file.createdAt,'yyyy.MM.dd')}">2025.06.10</td>
+                  <td class="muted" th:text="${file.downloadCount + '회'}">0회</td>
+                  <td>
+                    <a th:href="@{/file/download(fileId=${file.fileId})}"
+                       class="btn btn-primary btn-xs" onclick="event.stopPropagation();">⬇ 다운</a>
+                  </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(list)}">
+                  <td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">등록된 자료가 없습니다.</td>
+                </tr>
+              </tbody>
+            </table>
+            <!-- 페이지네이션 -->
+            <div class="pagination">
+              <button class="pg-btn"
+                      th:onclick="${currentPage <= 1} ? null : |location.href='@{/board/archive(page=${currentPage-1},keyword=${keyword},category=${category})}'|">‹</button>
+              <button class="pg-btn"
+                      th:each="i : ${#numbers.sequence(startPage, endPage)}"
+                      th:text="${i}"
+                      th:classappend="${i == currentPage} ? 'active'"
+                      th:onclick="|location.href='@{/board/archive(page=${i},keyword=${keyword},category=${category})}'|">1</button>
+              <button class="pg-btn"
+                      th:onclick="${currentPage >= totalPages} ? null : |location.href='@{/board/archive(page=${currentPage+1},keyword=${keyword},category=${category})}'|">›</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/script.js}"></script>
+<script>
+function setView(mode) {
+  const grid = document.getElementById('view-grid');
+  const table = document.getElementById('view-table');
+  const btnGrid = document.getElementById('btn-grid');
+  const btnTable = document.getElementById('btn-table');
+  if (mode === 'grid') {
+    grid.style.display = 'grid'; table.style.display = 'none';
+    btnGrid.classList.add('active'); btnTable.classList.remove('active');
+  } else {
+    grid.style.display = 'none'; table.style.display = 'block';
+    btnTable.classList.add('active'); btnGrid.classList.remove('active');
+  }
+}
+</script>
+</body>
+</html>

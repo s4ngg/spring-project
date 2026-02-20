@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>공지사항 — WorkSpace</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="app-wrap">
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+  <div class="main-content">
+    <header th:replace="~{fragments/header :: topbar(title='공지사항')}"></header>
+    <div class="content-body">
+
+      <div class="page-header">
+        <div>
+          <div class="page-title">📢 공지사항</div>
+          <div class="page-sub">관리자가 등록한 공지를 확인하세요</div>
+        </div>
+        <!-- ADMIN만 작성 버튼 표시 -->
+        <a th:if="${session.LOGIN_MEMBER.role == 'ADMIN'}"
+           th:href="@{/board/notice/write}" class="btn btn-primary">✏️ 공지 작성</a>
+      </div>
+
+      <div class="card">
+        <div class="card-body" style="padding:0;">
+          <!-- 검색 툴바 -->
+          <div class="toolbar" style="padding:15px 18px 0;">
+            <form th:action="@{/board/notice}" method="get" style="display:flex;gap:9px;flex:1;">
+              <div class="search-wrap">
+                <span class="si">🔍</span>
+                <input type="text" name="keyword" th:value="${keyword}" placeholder="제목 또는 내용 검색...">
+              </div>
+              <select name="type" class="filter-select">
+                <option value="">전체</option>
+                <option value="IMPORTANT" th:selected="${type == 'IMPORTANT'}">중요 공지</option>
+                <option value="NORMAL" th:selected="${type == 'NORMAL'}">일반 공지</option>
+              </select>
+              <button type="submit" class="btn btn-outline btn-sm">검색</button>
+            </form>
+          </div>
+
+          <!-- 목록 테이블 -->
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:60px;">번호</th>
+                <th>제목</th>
+                <th style="width:90px;">작성자</th>
+                <th style="width:105px;">작성일</th>
+                <th style="width:65px;">조회수</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- th:each="notice : ${list}" -->
+              <tr th:each="notice : ${list}"
+                  th:onclick="|location.href='@{/board/notice/detail(id=${notice.boardId})}'|">
+                <td class="muted">
+                  <span th:if="${notice.isImportant}">📌</span>
+                  <span th:unless="${notice.isImportant}" th:text="${notice.boardId}">1</span>
+                </td>
+                <td class="bold">
+                  <span class="pin-label" th:if="${notice.isImportant}">중요</span>
+                  <span th:text="${notice.title}">공지 제목</span>
+                </td>
+                <td class="muted" th:text="${notice.writerName}">관리자</td>
+                <td class="muted" th:text="${#temporals.format(notice.createdAt, 'yyyy.MM.dd')}">2025.06.20</td>
+                <td class="muted" th:text="${notice.viewCount}">0</td>
+              </tr>
+              <!-- 목록 없을 때 -->
+              <tr th:if="${#lists.isEmpty(list)}">
+                <td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted);">등록된 공지가 없습니다.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- 페이지네이션 -->
+          <div class="pagination">
+            <button class="pg-btn"
+                    th:onclick="${currentPage <= 1} ? null : |location.href='@{/board/notice(page=${currentPage-1},keyword=${keyword})}'|">‹</button>
+            <button class="pg-btn"
+                    th:each="i : ${#numbers.sequence(startPage, endPage)}"
+                    th:text="${i}"
+                    th:classappend="${i == currentPage} ? 'active'"
+                    th:onclick="|location.href='@{/board/notice(page=${i},keyword=${keyword})}'|">1</button>
+            <button class="pg-btn"
+                    th:onclick="${currentPage >= totalPages} ? null : |location.href='@{/board/notice(page=${currentPage+1},keyword=${keyword})}'|">›</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>

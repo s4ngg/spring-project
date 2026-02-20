@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>마이페이지 — WorkSpace</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="app-wrap">
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+  <div class="main-content">
+    <header th:replace="~{fragments/header :: topbar(title='마이페이지')}"></header>
+    <div class="content-body">
+
+      <div class="page-header">
+        <div>
+          <div class="page-title">👤 마이페이지</div>
+          <div class="page-sub">내 정보를 확인하고 수정하세요</div>
+        </div>
+      </div>
+
+      <div class="mypage-grid">
+        <!-- 프로필 카드 -->
+        <div>
+          <div class="card profile-block">
+            <div class="prof-avatar">
+              <span th:text="${#strings.substring(member.name, 0, 1)}">홍</span>
+              <div class="prof-edit">✏</div>
+            </div>
+            <div class="prof-name" th:text="${member.name}">홍길동</div>
+            <div class="prof-pos" th:text="${member.deptName + ' · ' + member.gradeName}">개발팀 · 과장</div>
+            <div class="prof-tags">
+              <span class="badge badge-green" th:if="${member.leaveDate == null}">재직 중</span>
+              <span class="badge badge-red" th:if="${member.leaveDate != null}">퇴사</span>
+              <span class="badge badge-gray" th:text="${member.employeeNo}">EMP-0042</span>
+            </div>
+            <div class="prof-stats">
+              <div>
+                <div class="ps-num" th:text="${workYears}">3.2</div>
+                <div class="ps-label">근속 (년)</div>
+              </div>
+              <div>
+                <div class="ps-num" th:text="${remainVacation}">15</div>
+                <div class="ps-label">잔여 휴가</div>
+              </div>
+              <div>
+                <div class="ps-num" th:text="${postCount}">42</div>
+                <div class="ps-label">게시글</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 비밀번호 변경 -->
+          <div class="card" style="margin-top:14px;">
+            <div class="card-header"><span class="card-title">🔒 비밀번호 변경</span></div>
+            <div class="card-body">
+              <form th:action="@{/member/change-password}" method="post">
+                <div class="form-group">
+                  <label class="form-label">현재 비밀번호</label>
+                  <input type="password" name="currentPassword" class="form-control" placeholder="현재 비밀번호" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">새 비밀번호</label>
+                  <input type="password" name="newPassword" class="form-control" placeholder="8자 이상" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">새 비밀번호 확인</label>
+                  <input type="password" name="newPasswordCheck" class="form-control" placeholder="재입력" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">변경하기</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- 상세 정보 -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">📋 기본 정보</span>
+              <button class="btn btn-primary btn-sm" onclick="toggleEdit()">✏️ 수정</button>
+            </div>
+            <div class="card-body">
+              <!-- 정보 표시 모드 -->
+              <div id="info-view">
+                <div class="info-grid">
+                  <div><div class="field-label">이름</div><div class="field-value" th:text="${member.name}">홍길동</div></div>
+                  <div><div class="field-label">사원번호(ID)</div><div class="field-value" th:text="${member.employeeNo}">EMP-0042</div></div>
+                  <div><div class="field-label">이메일</div><div class="field-value" th:text="${member.email}">hong@company.com</div></div>
+                  <div><div class="field-label">성별</div><div class="field-value" th:text="${member.gender == 'M' ? '남성' : '여성'}">남성</div></div>
+                  <div><div class="field-label">직급</div><div class="field-value" th:text="${member.gradeName}">과장</div></div>
+                  <div><div class="field-label">부서</div><div class="field-value" th:text="${member.deptName}">개발팀</div></div>
+                  <div>
+                    <div class="field-label">가입일 (입사일)</div>
+                    <div class="field-value" th:text="${#temporals.format(member.joinDate, 'yyyy-MM-dd')}">2022-03-07</div>
+                  </div>
+                  <div>
+                    <div class="field-label">퇴사일</div>
+                    <div class="field-value active-status"
+                         th:text="${member.leaveDate != null ? #temporals.format(member.leaveDate,'yyyy-MM-dd') : '현재 근무 중'}">현재 근무 중</div>
+                  </div>
+                </div>
+              </div>
+              <!-- 정보 수정 모드 -->
+              <div id="info-edit" style="display:none;">
+                <form th:action="@{/member/update}" method="post" th:object="${memberDto}">
+                  <div class="info-grid">
+                    <div class="form-group">
+                      <label class="form-label">이메일</label>
+                      <input type="email" th:field="*{email}" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">성별</label>
+                      <select th:field="*{gender}" class="form-control">
+                        <option value="M" th:selected="${member.gender == 'M'}">남성</option>
+                        <option value="F" th:selected="${member.gender == 'F'}">여성</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-actions">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="toggleEdit()">취소</button>
+                    <button type="submit" class="btn btn-primary btn-sm">저장</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- 최근 활동 -->
+          <div class="card" style="margin-top:14px;">
+            <div class="card-header"><span class="card-title">📊 최근 활동</span></div>
+            <div class="card-body" style="padding:0;">
+              <table class="data-table">
+                <thead>
+                  <tr><th>구분</th><th>내용</th><th style="width:110px;">일시</th></tr>
+                </thead>
+                <tbody>
+                  <!-- th:each="activity : ${recentActivities}" -->
+                  <tr th:each="activity : ${recentActivities}">
+                    <td><span class="badge badge-sky" th:text="${activity.type}">자료실</span></td>
+                    <td class="bold" th:text="${activity.description}">파일 업로드</td>
+                    <td class="muted" th:text="${#temporals.format(activity.createdAt, 'yyyy.MM.dd')}">2025.06.20</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div><!-- /mypage-grid -->
+
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/script.js}"></script>
+<script>
+function toggleEdit() {
+  const view = document.getElementById('info-view');
+  const edit = document.getElementById('info-edit');
+  if (edit.style.display === 'none') {
+    view.style.display = 'none'; edit.style.display = 'block';
+  } else {
+    view.style.display = 'block'; edit.style.display = 'none';
+  }
+}
+</script>
+</body>
+</html>
