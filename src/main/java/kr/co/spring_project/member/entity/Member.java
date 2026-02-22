@@ -30,6 +30,7 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employeeNo;
     
+    @Column(name = "user_name", nullable = false)
     private String name;
     private String gender;
     
@@ -49,6 +50,9 @@ public class Member {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private Integer totalVacation = 15;  // 총 연차 (기본 15일)
+    private Integer usedVacation = 0;    // 사용 연차
+    
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();

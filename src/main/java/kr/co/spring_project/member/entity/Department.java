@@ -16,7 +16,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Department {
 	@Id // PK(Primary Key) 지정
-	@GeneratedValue(strategy = GenerationType.IDENTITY) //기본 키 자동 증가
 	private String deptId;
 	private String deptName;	
 }
