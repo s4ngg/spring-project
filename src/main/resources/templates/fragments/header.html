@@ -20,8 +20,8 @@
     <!-- 로그인 됐을 때 -->
     <a th:if="${session.LOGIN_MEMBER != null}"
        th:href="@{/member/mypage}" class="topbar-user">
-      <div class="t-avatar"
-           th:text="${#strings.substring(session.LOGIN_MEMBER.name, 0, 1)}">홍</div>
+	   <div class="u-avatar"
+	        th:text="${not #strings.isEmpty(session.LOGIN_MEMBER.name)} ? ${#strings.substring(session.LOGIN_MEMBER.name, 0, 1)} : '?'">홍</div>
       <span th:text="${session.LOGIN_MEMBER.name}">홍길동</span>
     </a>
 

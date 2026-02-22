@@ -108,7 +108,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         // 2. 본인 or 관리자만 삭제 가능
         if (!schedule.getMember().getEmployeeNo().equals(loginMember.getEmployeeNo())
-        	    && !loginMember.getRole().equals("ADMIN")) {
+        	    || !loginMember.getRole().equals("ADMIN")) {
         	throw new RuntimeException("삭제 권한이 없습니다.");  //←추가 (02.22)soo
 
         }
