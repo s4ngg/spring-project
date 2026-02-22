@@ -13,8 +13,8 @@
 
   <!-- 로그인 됐을 때 -->
   <div class="sidebar-user" th:if="${session.LOGIN_MEMBER != null}">
-    <div class="u-avatar"
-         th:text="${#strings.substring(session.LOGIN_MEMBER.name, 0, 1)}">홍</div>
+	<div class="u-avatar"
+	     th:text="${not #strings.isEmpty(session.LOGIN_MEMBER.name)} ? ${#strings.substring(session.LOGIN_MEMBER.name, 0, 1)} : '?'">홍</div>
     <div>
       <div class="u-name"
            th:text="${session.LOGIN_MEMBER.name + ' ' + session.LOGIN_MEMBER.gradeName}">홍길동 과장</div>
