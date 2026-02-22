@@ -5,12 +5,9 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,7 +27,6 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long employeeNo;
     
-    @Column(name = "user_name", nullable = false)
     private String name;
     private String gender;
     
@@ -40,9 +36,6 @@ public class Member {
     private String password;
     private String role;
     private String gradeName;        // ← 추가
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dept_id")
-    private Department deptId;
 
     private LocalDate joinDate;
     private LocalDate leaveDate;
@@ -50,9 +43,6 @@ public class Member {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private Integer totalVacation = 15;  // 총 연차 (기본 15일)
-    private Integer usedVacation = 0;    // 사용 연차
-    
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
