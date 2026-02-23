@@ -437,3 +437,172 @@ ul { list-style: none; }
 .fu { animation: fadeUp 0.36s ease both; }
 .fu:nth-child(1){ animation-delay:.04s } .fu:nth-child(2){ animation-delay:.08s }
 .fu:nth-child(3){ animation-delay:.12s } .fu:nth-child(4){ animation-delay:.16s }
+
+/* ── 팝업 래퍼 ─────────────────────────────────────────── */
+  .msg-popup-wrap {
+    position: relative;
+    display: inline-block;
+  }
+
+  .msg-popup-trigger {
+    position: relative;
+  }
+
+  /* ── 읽지 않은 뱃지 ───────────────────────────────────── */
+  .msg-badge {
+    position: absolute;
+    top: -5px;
+    right: -7px;
+    background: #e74c3c;
+    color: #fff;
+    border-radius: 10px;
+    padding: 1px 6px;
+    font-size: 10px;
+    font-weight: bold;
+    pointer-events: none;
+    line-height: 1.4;
+  }
+
+  /* ── 팝업 패널 ─────────────────────────────────────────── */
+  .msg-popup {
+    display: none;
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 320px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.07);
+    z-index: 9999;
+    overflow: hidden;
+    animation: popupFadeIn 0.18s ease;
+  }
+
+  .msg-popup.open {
+    display: block;
+  }
+
+  @keyframes popupFadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 말풍선 꼬리 */
+  .msg-popup::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: 18px;
+    width: 14px;
+    height: 14px;
+    background: #fff;
+    transform: rotate(45deg);
+    border-radius: 2px;
+    box-shadow: -2px -2px 5px rgba(0,0,0,0.06);
+  }
+
+  /* ── 팝업 헤더 ─────────────────────────────────────────── */
+  .msg-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    background: #fafafa;
+  }
+
+  .msg-popup-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #222;
+  }
+
+  .msg-popup-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .msg-write-btn {
+    font-size: 12px;
+    color: #fff;
+    background: #4f8ef7;
+    border-radius: 6px;
+    padding: 4px 10px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+  .msg-write-btn:hover { background: #2d6fd4; }
+
+  .msg-all-btn {
+    font-size: 12px;
+    color: #4f8ef7;
+    text-decoration: none;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .msg-all-btn:hover { text-decoration: underline; }
+
+  /* ── 쪽지 목록 ─────────────────────────────────────────── */
+  .msg-popup-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .msg-popup-item {
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .msg-popup-item:last-child { border-bottom: none; }
+
+  .msg-popup-link {
+    display: block;
+    padding: 12px 16px;
+    text-decoration: none;
+    transition: background 0.12s;
+  }
+  .msg-popup-link:hover { background: #f5f8ff; }
+
+  .msg-popup-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+  }
+
+  .msg-popup-sender {
+    font-size: 13px;
+    color: #555;
+    font-weight: 500;
+  }
+  .msg-popup-sender.unread {
+    color: #222;
+    font-weight: 700;
+  }
+
+  .msg-popup-time {
+    font-size: 11px;
+    color: #bbb;
+  }
+
+  .msg-popup-subject {
+    font-size: 13px;
+    color: #888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 280px;
+  }
+  .msg-popup-subject.unread {
+    color: #333;
+    font-weight: 600;
+  }
+
+  /* ── 비어있을 때 ────────────────────────────────────────── */
+  .msg-popup-empty {
+    padding: 28px 16px;
+    text-align: center;
+    color: #bbb;
+    font-size: 13px;
+  }

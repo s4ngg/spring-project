@@ -35,3 +35,15 @@ document.querySelectorAll('.upload-zone').forEach(zone => {
     }
   });
 });
+function toggleMsgPopup(e) {
+    e.stopPropagation();
+    document.getElementById('msgPopup').classList.toggle('open');
+  }
+
+  // 팝업 바깥 클릭 시 닫기
+  document.addEventListener('click', function(e) {
+    var wrap = document.getElementById('msgPopupWrap');
+    if (wrap && !wrap.contains(e.target)) {
+      document.getElementById('msgPopup').classList.remove('open');
+    }
+  });

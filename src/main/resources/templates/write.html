@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>쪽지 쓰기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #f4f6f9;
+      --surface:    #ffffff;
+      --border:     #e2e8f0;
+      --primary:    #4f6ef7;
+      --primary-dk: #3a58e0;
+      --text:       #1e293b;
+      --muted:      #64748b;
+      --danger:     #ef4444;
+      --radius:     10px;
+      --shadow:     0 2px 12px rgba(0,0,0,.07);
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .page-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 20px 60px;
+    }
+
+    /* ── 페이지 헤더 ── */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .875rem;
+      padding: 7px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      transition: all .15s;
+    }
+    .back-btn:hover { background: var(--bg); color: var(--text); }
+    .page-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -.5px;
+    }
+
+    /* ── 플래시 ── */
+    .flash {
+      padding: 12px 18px;
+      border-radius: var(--radius);
+      font-size: .875rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .flash.error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+    /* ── 답장 원본 ── */
+    .reply-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 16px;
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      border-radius: var(--radius);
+      font-size: .85rem;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+
+    /* ── 폼 카드 ── */
+    .form-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    /* ── 폼 행 ── */
+    .form-row {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      align-items: stretch;
+      border-bottom: 1px solid var(--border);
+    }
+    .form-row:last-of-type { border-bottom: none; }
+
+    .form-label {
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      font-size: .83rem;
+      font-weight: 600;
+      color: var(--muted);
+      background: #f8fafc;
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .form-field {
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* ── 수신자 검색 ── */
+    .receiver-search-wrap {
+      display: flex;
+      gap: 8px;
+    }
+    .receiver-search-input {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 8px 12px;
+      font-size: .875rem;
+      font-family: inherit;
+      outline: none;
+      transition: border .15s;
+    }
+    .receiver-search-input:focus { border-color: var(--primary); }
+
+    .btn-search {
+      padding: 8px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: .8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all .15s;
+      font-family: inherit;
+    }
+    .btn-search:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* 검색 결과 드롭다운 */
+    .search-results {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.1);
+      overflow: hidden;
+      display: none;
+    }
+    .search-results.show { display: block; }
+    .search-result-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: .875rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+    .search-result-item:last-child { border-bottom: none; }
+    .search-result-item:hover { background: var(--unread-bg, #eef2ff); }
+    .result-name { font-weight: 600; }
+    .result-meta { font-size: .78rem; color: var(--muted); }
+
+    /* 선택된 수신자 태그 */
+    .selected-receiver {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: .83rem;
+      font-weight: 500;
+    }
+    .selected-receiver .remove-btn {
+      cursor: pointer;
+      font-size: .8rem;
+      line-height: 1;
+      color: var(--primary);
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .selected-receiver .remove-btn:hover { color: var(--danger); }
+
+    /* 에러 메시지 */
+    .field-error {
+      color: var(--danger);
+      font-size: .78rem;
+    }
+
+    /* ── 일반 입력 ── */
+    .form-input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 9px 12px;
+      font-size: .875rem;
+      font-family: inherit;
+      outline: none;
+      transition: border .15s;
+    }
+    .form-input:focus { border-color: var(--primary); }
+
+    /* ── 내용 textarea ── */
+    .form-textarea {
+      width: 100%;
+      border: none;
+      outline: none;
+      resize: vertical;
+      min-height: 220px;
+      font-size: .9rem;
+      font-family: inherit;
+      line-height: 1.7;
+      padding: 16px;
+      color: var(--text);
+    }
+    .content-row {
+      border-bottom: none;
+    }
+    .content-row .form-label {
+      align-items: flex-start;
+      padding-top: 16px;
+    }
+    .content-row .form-field {
+      padding: 0;
+    }
+
+    /* ── 버튼 영역 ── */
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 20px 0 0;
+    }
+    .btn-cancel {
+      padding: 10px 22px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: var(--radius);
+      font-size: .875rem;
+      font-weight: 500;
+      text-decoration: none;
+      color: var(--muted);
+      transition: all .15s;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .btn-cancel:hover { background: var(--bg); color: var(--text); }
+    .btn-send {
+      padding: 10px 28px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: .875rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .18s, transform .12s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-send:hover { background: var(--primary-dk); transform: translateY(-1px); }
+
+    /* 반응형 */
+    @media (max-width: 540px) {
+      .form-row { grid-template-columns: 80px 1fr; }
+      .form-label { font-size: .78rem; padding: 0 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 헤더 fragment 삽입 위치 -->
+  <div th:replace="~{fragments/header :: topbar('쪽지 쓰기')}"></div>
+
+  <div class="page-wrap">
+
+    <!-- 페이지 헤더 -->
+    <div class="page-header">
+      <a th:href="@{/message/inbox}" class="back-btn">← 뒤로</a>
+      <h1 class="page-title">✏️ 쪽지 쓰기</h1>
+    </div>
+
+    <!-- 에러 -->
+    <div th:if="${errorMsg}" class="flash error">⚠️ <span th:text="${errorMsg}"></span></div>
+
+    <!-- 답장 원본 표시 -->
+    <div th:if="${form.parentMessageId != null}" class="reply-info">
+      ↩ 원본 쪽지에 대한 답장입니다.
+    </div>
+
+    <!-- 폼 -->
+    <form th:action="@{/message/send}" method="post" th:object="${form}" id="writeForm">
+
+      <!-- 숨김 필드 -->
+      <input type="hidden" th:field="*{parentMessageId}">
+      <input type="hidden" th:field="*{receiverEmployeeNo}" id="receiverEmployeeNo">
+
+      <div class="form-card">
+
+        <!-- 수신자 -->
+        <div class="form-row">
+          <span class="form-label">받는 사람</span>
+          <div class="form-field">
+            <!-- 선택된 수신자 태그 -->
+            <div id="selectedReceiverTag" style="display:none;">
+              <span class="selected-receiver">
+                <span id="selectedReceiverName"></span>
+                <button type="button" class="remove-btn" onclick="clearReceiver()">✕</button>
+              </span>
+            </div>
+
+            <!-- 검색 입력 -->
+            <div class="receiver-search-wrap" id="receiverSearchArea">
+              <input type="text" id="receiverNameInput"
+                     class="receiver-search-input"
+                     placeholder="이름으로 검색..."
+                     autocomplete="off"
+                     onkeydown="if(event.key==='Enter'){event.preventDefault();searchReceiver();}">
+              <button type="button" class="btn-search" onclick="searchReceiver()">🔍 검색</button>
+            </div>
+
+            <div class="search-results" id="searchResults"></div>
+
+            <!-- 검증 에러 -->
+            <span th:if="${#fields.hasErrors('receiverEmployeeNo')}"
+                  class="field-error"
+                  th:errors="*{receiverEmployeeNo}"></span>
+          </div>
+        </div>
+
+        <!-- 제목 -->
+        <div class="form-row">
+          <span class="form-label">제목</span>
+          <div class="form-field">
+            <input type="text" th:field="*{title}" class="form-input"
+                   placeholder="제목을 입력하세요" maxlength="200">
+            <span th:if="${#fields.hasErrors('title')}"
+                  class="field-error"
+                  th:errors="*{title}"></span>
+          </div>
+        </div>
+
+        <!-- 내용 -->
+        <div class="form-row content-row">
+          <span class="form-label">내용</span>
+          <div class="form-field">
+            <textarea th:field="*{content}" class="form-textarea"
+                      placeholder="내용을 입력하세요..."></textarea>
+            <span th:if="${#fields.hasErrors('content')}"
+                  class="field-error"
+                  style="padding: 0 16px 12px;"
+                  th:errors="*{content}"></span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 버튼 -->
+      <div class="form-actions">
+        <a th:href="@{/message/inbox}" class="btn-cancel">취소</a>
+        <button type="submit" class="btn-send">📨 전송하기</button>
+      </div>
+
+    </form>
+  </div>
+
+  <script th:inline="javascript">
+    // 페이지 로드 시 이미 receiverEmployeeNo가 있으면 수신자 표시
+    (function() {
+      const no = document.getElementById('receiverEmployeeNo').value;
+      const presetName = /*[[${form.receiverEmployeeNo != null ? '' : ''}]]*/ '';
+      // 답장 등으로 이미 수신자가 설정된 경우 표시
+      const hiddenName = document.querySelector('input[name="__receiverName"]');
+    })();
+
+    function searchReceiver() {
+      const name = document.getElementById('receiverNameInput').value.trim();
+      if (!name) return;
+
+      fetch('/message/search-receiver?name=' + encodeURIComponent(name))
+        .then(r => r.json())
+        .then(list => {
+          const box = document.getElementById('searchResults');
+          box.innerHTML = '';
+          if (!list.length) {
+            box.innerHTML = '<div class="search-result-item"><span class="result-meta">검색 결과가 없습니다.</span></div>';
+          } else {
+            list.forEach(m => {
+              const div = document.createElement('div');
+              div.className = 'search-result-item';
+              div.innerHTML =
+                '<span class="result-name">' + m.name + '</span>' +
+                '<span class="result-meta">' + (m.gradeName || '') + ' · ' + (m.deptName || '') + '</span>';
+              div.onclick = () => selectReceiver(m.employeeNo, m.name);
+              box.appendChild(div);
+            });
+          }
+          box.classList.add('show');
+        })
+        .catch(() => alert('검색 중 오류가 발생했습니다.'));
+    }
+
+    function selectReceiver(no, name) {
+      document.getElementById('receiverEmployeeNo').value = no;
+      document.getElementById('selectedReceiverName').textContent = name;
+      document.getElementById('selectedReceiverTag').style.display = 'block';
+      document.getElementById('receiverSearchArea').style.display = 'none';
+      document.getElementById('searchResults').classList.remove('show');
+    }
+
+    function clearReceiver() {
+      document.getElementById('receiverEmployeeNo').value = '';
+      document.getElementById('selectedReceiverTag').style.display = 'none';
+      document.getElementById('receiverSearchArea').style.display = 'flex';
+      document.getElementById('receiverNameInput').value = '';
+    }
+
+    // 바깥 클릭 시 드롭다운 닫기
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#msgPopupWrap') &&
+          !e.target.closest('#searchResults') &&
+          !e.target.closest('#receiverSearchArea')) {
+        document.getElementById('searchResults').classList.remove('show');
+      }
+    });
+  </script>
+
+</body>
+</html>
