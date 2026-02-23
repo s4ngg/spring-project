@@ -1,13 +1,12 @@
 package kr.co.spring_project.attendance.service.impl;
 
-import java.time.LocalDateTime;
-
 import org.springframework.stereotype.Service;
 
 import kr.co.spring_project.attendance.dto.ReqAttendanceDTO;
 import kr.co.spring_project.attendance.entity.Attendance;
 import kr.co.spring_project.attendance.repository.AttendanceRepository;
 import kr.co.spring_project.attendance.service.AttendanceService;
+import kr.co.spring_project.member.entity.Member;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -18,18 +17,22 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     public void checkIn(ReqAttendanceDTO dto) {
+        Member member = Member.builder().employeeNo(dto.getEmployeeNo()).build();
         Attendance attendance = Attendance.builder()
+                .member(member)
                 .status(dto.getStatus())
-                .checkIn(LocalDateTime.now())
+                .checkIn(dto.getCheckTime())
                 .build();
         attendanceRepository.save(attendance);
     }
 
     @Override
     public void checkOut(ReqAttendanceDTO dto) {
+        Member member = Member.builder().employeeNo(dto.getEmployeeNo()).build();
         Attendance attendance = Attendance.builder()
+                .member(member)
                 .status(dto.getStatus())
-                .checkOut(LocalDateTime.now())
+                .checkOut(dto.getCheckTime())
                 .build();
         attendanceRepository.save(attendance);
     }

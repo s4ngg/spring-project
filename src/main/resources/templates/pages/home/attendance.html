@@ -26,12 +26,8 @@
         </div>
         <div class="card-body">
           <div style="display:flex;gap:13px;">
-            <form th:action="@{/attendance/check-in}" method="post">
-              <button type="submit" class="btn btn-primary">⏰ 출근 체크</button>
-            </form>
-            <form th:action="@{/attendance/check-out}" method="post">
-              <button type="submit" class="btn btn-outline">🏠 퇴근 체크</button>
-            </form>
+            <button type="button" class="btn btn-primary" onclick="openCheckModal('in')">⏰ 출근 체크</button>
+            <button type="button" class="btn btn-outline" onclick="openCheckModal('out')">🏠 퇴근 체크</button>
           </div>
         </div>
       </div>
@@ -39,6 +35,68 @@
     </div>
   </div>
 </div>
+
+<!-- 출퇴근 시간 선택 모달 -->
+<div id="check-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:999; align-items:center; justify-content:center;">
+  <div class="card" style="width:400px; max-width:90%;">
+    <div class="card-header">
+      <span class="card-title" id="modal-title">출근 체크</span>
+      <button onclick="closeCheckModal()" style="font-size:18px; color:var(--text-muted); cursor:pointer;">✕</button>
+    </div>
+    <div class="card-body">
+      <form id="check-form" method="post">
+        <div class="form-group">
+          <label class="form-label">시간 선택</label>
+          <input type="datetime-local" id="check-time" name="checkTime" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">상태</label>
+          <select name="status" class="form-control">
+            <option value="정상">정상</option>
+            <option value="지각">지각</option>
+            <option value="조퇴">조퇴</option>
+            <option value="휴가">휴가</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline" onclick="closeCheckModal()">취소</button>
+          <button type="submit" class="btn btn-primary" id="modal-submit-btn">출근</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script th:src="@{/js/script.js}"></script>
+<script>
+  function openCheckModal(type) {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mi = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('check-time').value = `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+
+    if (type === 'in') {
+      document.getElementById('modal-title').textContent = '⏰ 출근 체크';
+      document.getElementById('modal-submit-btn').textContent = '출근';
+      document.getElementById('check-form').action = '/attendance/check-in';
+    } else {
+      document.getElementById('modal-title').textContent = '🏠 퇴근 체크';
+      document.getElementById('modal-submit-btn').textContent = '퇴근';
+      document.getElementById('check-form').action = '/attendance/check-out';
+    }
+    document.getElementById('check-modal').style.display = 'flex';
+  }
+
+  function closeCheckModal() {
+    document.getElementById('check-modal').style.display = 'none';
+  }
+
+  document.getElementById('check-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeCheckModal();
+  });
+</script>
 </body>
 </html>

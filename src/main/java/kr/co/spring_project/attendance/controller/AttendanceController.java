@@ -1,14 +1,19 @@
  package kr.co.spring_project.attendance.controller;
 
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import jakarta.servlet.http.HttpSession;
 import kr.co.spring_project.attendance.dto.ReqAttendanceDTO;
 import kr.co.spring_project.attendance.service.AttendanceService;
+import kr.co.spring_project.member.dto.ResloginDTO;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -18,24 +23,36 @@ public class AttendanceController {
 
     private final AttendanceService attendanceService;
 
-    // 출근 체크
     @PostMapping("/check-in")
-    public String checkIn() {
+    public String checkIn(@RequestParam("checkTime") String checkTime,
+                          @RequestParam("status") String status,
+                          HttpSession session) {
+        ResloginDTO loginMember = (ResloginDTO) session.getAttribute("LOGIN_MEMBER");
+        if (loginMember == null) return "redirect:/member/login";
+
         ReqAttendanceDTO dto = ReqAttendanceDTO.builder()
-                .status("정상")
+                .status(status)
+                .checkTime(LocalDateTime.parse(checkTime))
+                .employeeNo(loginMember.getEmployeeNo())
                 .build();
         attendanceService.checkIn(dto);
-        return "redirect:/";
+        return "redirect:/attendance";
     }
 
-    // 퇴근 체크
     @PostMapping("/check-out")
-    public String checkOut() {
+    public String checkOut(@RequestParam("checkTime") String checkTime,
+                           @RequestParam("status") String status,
+                           HttpSession session) {
+        ResloginDTO loginMember = (ResloginDTO) session.getAttribute("LOGIN_MEMBER");
+        if (loginMember == null) return "redirect:/member/login";
+
         ReqAttendanceDTO dto = ReqAttendanceDTO.builder()
-                .status("정상")
+                .status(status)
+                .checkTime(LocalDateTime.parse(checkTime))
+                .employeeNo(loginMember.getEmployeeNo())
                 .build();
         attendanceService.checkOut(dto);
-        return "redirect:/";
+        return "redirect:/attendance";
     }
     
     @GetMapping("")
