@@ -1,4 +1,4 @@
-package kr.co.spring_project.board.Controller;
+package kr.co.spring_project.board.controller;
 
 import java.util.List;
 

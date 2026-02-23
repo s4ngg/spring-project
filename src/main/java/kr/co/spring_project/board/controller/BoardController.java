@@ -22,11 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class BoardController {
     private final BoardFileService boardFileService;
 
-    // ✅ 추가 - 공지사항 목록
-    @GetMapping("/notice")
-    public String noticeList(Model model) {
-        return "pages/board/notice";
-    }
+    // ← noticeList 메서드 제거
 
     // 첨부파일 목록 조회
     @GetMapping("/files")
