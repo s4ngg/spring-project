@@ -9,8 +9,10 @@
 <body>
 <div class="app-wrap">
   <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
   <div class="main-content">
     <header th:replace="~{fragments/header :: topbar(title='근태 관리')}"></header>
+
     <div class="content-body">
 
       <div class="page-header">
@@ -20,15 +22,51 @@
         </div>
       </div>
 
+      <!-- 출퇴근 카드 -->
       <div class="card">
         <div class="card-header">
           <span class="card-title">출퇴근 체크</span>
         </div>
+
         <div class="card-body">
+
+          <!-- 버튼 -->
           <div style="display:flex;gap:13px;">
-            <button type="button" class="btn btn-primary" onclick="openCheckModal('in')">⏰ 출근 체크</button>
-            <button type="button" class="btn btn-outline" onclick="openCheckModal('out')">🏠 퇴근 체크</button>
+            <!-- 출근 -->
+            <button type="button"
+                    class="btn btn-primary"
+                    th:disabled="${today != null && today.checkIn != null}"
+                    onclick="openCheckModal('in')">
+              ⏰ 출근 체크
+            </button>
+
+            <!-- 퇴근 -->
+            <button type="button"
+                    class="btn btn-outline"
+                    th:disabled="${today == null || today.checkOut != null}"
+                    onclick="openCheckModal('out')">
+              🏠 퇴근 체크
+            </button>
           </div>
+
+          <!-- 오늘 기록 표시 -->
+          <div style="margin-top:25px; font-size:15px; line-height:1.8;">
+            <div>
+              ✔ 출근 시간 :
+              <span th:text="${today != null && today.checkIn != null} ? ${#temporals.format(today.checkIn, 'HH:mm')} : '--:--'"></span>
+            </div>
+
+            <div>
+              ✔ 퇴근 시간 :
+              <span th:text="${today != null && today.checkOut != null} ? ${#temporals.format(today.checkOut, 'HH:mm')} : '--:--'"></span>
+            </div>
+
+            <div>
+              ✔ 상태 :
+              <span th:text="${today != null} ? ${today.status} : '미등록'"></span>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -36,43 +74,63 @@
   </div>
 </div>
 
-<!-- 출퇴근 시간 선택 모달 -->
-<div id="check-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:999; align-items:center; justify-content:center;">
+
+<!-- ========================= -->
+<!-- 출퇴근 모달 -->
+<!-- ========================= -->
+<div id="check-modal"
+     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:999; align-items:center; justify-content:center;">
+
   <div class="card" style="width:400px; max-width:90%;">
     <div class="card-header">
       <span class="card-title" id="modal-title">출근 체크</span>
       <button onclick="closeCheckModal()" style="font-size:18px; color:var(--text-muted); cursor:pointer;">✕</button>
     </div>
+
     <div class="card-body">
       <form id="check-form" method="post">
+
+        <!-- 시간 -->
         <div class="form-group">
           <label class="form-label">시간 선택</label>
           <input type="time" id="check-time" name="checkTime" class="form-control" required>
         </div>
+
+        <!-- 상태 -->
         <div class="form-group">
           <label class="form-label">상태</label>
           <select name="status" class="form-control">
-            <option value="정상">정상</option>
-            <option value="지각">지각</option>
-            <option value="조퇴">조퇴</option>
-            <option value="휴가">휴가</option>
+            <option value="정상" th:selected="${today != null && today.status == '정상'}">정상</option>
+            <option value="지각" th:selected="${today != null && today.status == '지각'}">지각</option>
+            <option value="조퇴" th:selected="${today != null && today.status == '조퇴'}">조퇴</option>
+            <option value="휴가" th:selected="${today != null && today.status == '휴가'}">휴가</option>
           </select>
         </div>
+
+        <!-- 버튼 -->
         <div class="form-actions">
           <button type="button" class="btn btn-outline" onclick="closeCheckModal()">취소</button>
           <button type="submit" class="btn btn-primary" id="modal-submit-btn">출근</button>
         </div>
+
       </form>
     </div>
   </div>
 </div>
 
+
+<!-- ========================= -->
+<!-- SCRIPT -->
+<!-- ========================= -->
 <script th:src="@{/js/script.js}"></script>
+
 <script>
   function openCheckModal(type) {
+
     const now = new Date();
     const hh = String(now.getHours()).padStart(2, '0');
     const mi = String(now.getMinutes()).padStart(2, '0');
+
     document.getElementById('check-time').value = `${hh}:${mi}`;
 
     if (type === 'in') {
@@ -84,6 +142,7 @@
       document.getElementById('modal-submit-btn').textContent = '퇴근';
       document.getElementById('check-form').action = '/attendance/check-out';
     }
+
     document.getElementById('check-modal').style.display = 'flex';
   }
 
@@ -95,5 +154,6 @@
     if (e.target === this) closeCheckModal();
   });
 </script>
+
 </body>
 </html>

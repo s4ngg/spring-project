@@ -28,8 +28,12 @@
           <div class="page-sub"
                th:text="${#temporals.format(today, 'yyyy년 MM월 dd일 EEEE', new java.util.Locale('ko'))}">2025년 6월 20일 금요일</div>
         </div>
-        <!-- 출근 체크 버튼 - 모달 방식 -->
-        <button type="button" class="btn btn-primary" onclick="openCheckModal('in')">⏰ 출근 체크</button>
+        <button type="button" class="btn btn-primary"
+                th:if="${todayAttendance == null}"
+                onclick="openCheckModal('in')">⏰ 출근 체크</button>
+        <button type="button" class="btn btn-primary" disabled
+                th:unless="${todayAttendance == null}"
+                style="opacity:0.5;cursor:not-allowed;">✓ 출근 완료</button>
       </div>
 
       <!-- 통계 카드 -->
@@ -84,7 +88,8 @@
                 </div>
               </div>
             </div>
-            <div th:if="${#lists.isEmpty(recentNotices)}" style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">
+            <div th:if="${#lists.isEmpty(recentNotices)}"
+                 style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">
               등록된 공지가 없습니다.
             </div>
           </div>
@@ -94,18 +99,22 @@
         <div class="card fu">
           <div class="card-header">
             <span class="card-title">⏱ 오늘의 근태</span>
-            <span class="badge badge-green" th:text="${todayAttendance != null ? todayAttendance.status : '-'}">정상 출근</span>
+            <span class="badge badge-green"
+                  th:text="${todayAttendance != null ? todayAttendance.status : '-'}">정상</span>
           </div>
           <div class="card-body">
+            <!-- 출근 -->
             <div class="att-row">
               <div>
                 <div class="att-label">출근 시간</div>
                 <div class="att-time"
                      th:text="${todayAttendance != null and todayAttendance.checkIn != null}
-                               ? ${#temporals.format(todayAttendance.checkIn, 'HH:mm')} : '--:--'">09:02</div>
+                               ? ${#temporals.format(todayAttendance.checkIn, 'HH:mm')} : '--:--'">--:--</div>
               </div>
-              <span class="badge badge-green" th:if="${todayAttendance != null and todayAttendance.checkIn != null}">✓ 완료</span>
+              <span class="badge badge-green"
+                    th:if="${todayAttendance != null and todayAttendance.checkIn != null}">✓ 완료</span>
             </div>
+            <!-- 퇴근 -->
             <div class="att-row">
               <div>
                 <div class="att-label">퇴근 시간</div>
@@ -113,62 +122,94 @@
                      th:text="${todayAttendance != null and todayAttendance.checkOut != null}
                                ? ${#temporals.format(todayAttendance.checkOut, 'HH:mm')} : '--:--'">--:--</div>
               </div>
-              <!-- 퇴근 체크 버튼 - 모달 방식 -->
               <button type="button" class="att-btn out"
                       th:if="${todayAttendance != null and todayAttendance.checkIn != null and todayAttendance.checkOut == null}"
                       onclick="openCheckModal('out')">퇴근 체크</button>
             </div>
             <!-- 이번달 요약 -->
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px;">
-              <div style="text-align:center;padding:10px 6px;background:var(--bg-page);border-radius:9px;border:1px solid var(--border);">
-                <div style="font-family:'Sora',sans-serif;font-size:19px;font-weight:800;color:var(--success);" th:text="${normalCount}">12</div>
-                <div style="font-size:11px;color:var(--text-muted);">정상</div>
+              <div style="text-align:center;padding:10px 6px;border-radius:9px;border:1px solid var(--border);cursor:default;"
+                   th:style="${todayAttendance != null and todayAttendance.status == '정상'} ? 'background:var(--success);' : 'background:var(--bg-page);'">
+                <div style="font-family:'Sora',sans-serif;font-size:19px;font-weight:800;"
+                     th:style="${todayAttendance != null and todayAttendance.status == '정상'} ? 'color:#fff;' : 'color:var(--success);'"
+                     th:text="${normalCount}">0</div>
+                <div style="font-size:11px;"
+                     th:style="${todayAttendance != null and todayAttendance.status == '정상'} ? 'color:#fff;' : 'color:var(--text-muted);'">정상</div>
               </div>
-              <div style="text-align:center;padding:10px 6px;background:var(--bg-page);border-radius:9px;border:1px solid var(--border);">
-                <div style="font-family:'Sora',sans-serif;font-size:19px;font-weight:800;color:var(--warning);" th:text="${lateCount}">1</div>
-                <div style="font-size:11px;color:var(--text-muted);">지각</div>
+              <div style="text-align:center;padding:10px 6px;border-radius:9px;border:1px solid var(--border);cursor:default;"
+                   th:style="${todayAttendance != null and todayAttendance.status == '지각'} ? 'background:var(--warning);' : 'background:var(--bg-page);'">
+                <div style="font-family:'Sora',sans-serif;font-size:19px;font-weight:800;"
+                     th:style="${todayAttendance != null and todayAttendance.status == '지각'} ? 'color:#fff;' : 'color:var(--warning);'"
+                     th:text="${lateCount}">0</div>
+                <div style="font-size:11px;"
+                     th:style="${todayAttendance != null and todayAttendance.status == '지각'} ? 'color:#fff;' : 'color:var(--text-muted);'">지각</div>
               </div>
-              <div style="text-align:center;padding:10px 6px;background:var(--bg-page);border-radius:9px;border:1px solid var(--border);">
-                <div style="font-family:'Sora',sans-serif;font-size:19px;font-weight:800;color:var(--accent);" th:text="${vacationCount}">2</div>
-                <div style="font-size:11px;color:var(--text-muted);">휴가</div>
+              <div style="text-align:center;padding:10px 6px;border-radius:9px;border:1px solid var(--border);cursor:default;"
+                   th:style="${todayAttendance != null and todayAttendance.status == '휴가'} ? 'background:var(--accent);' : 'background:var(--bg-page);'">
+                <div style="font-family:'Sora',sans-serif;font-size:19px;font-weight:800;"
+                     th:style="${todayAttendance != null and todayAttendance.status == '휴가'} ? 'color:#fff;' : 'color:var(--accent);'"
+                     th:text="${vacationCount}">0</div>
+                <div style="font-size:11px;"
+                     th:style="${todayAttendance != null and todayAttendance.status == '휴가'} ? 'color:#fff;' : 'color:var(--text-muted);'">휴가</div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- 미니 캘린더 -->
-        <div class="card fu">
-          <div class="card-header"><span class="card-title">📅 캘린더</span></div>
-          <div class="card-body">
-            <div class="cal-header">
-              <button class="cal-nav">‹</button>
-              <span class="cal-month" th:text="${#temporals.format(today, 'yyyy년 MM월')}">2025년 6월</span>
-              <button class="cal-nav">›</button>
-            </div>
-            <div class="cal-grid">
-              <div class="cal-dh">일</div><div class="cal-dh">월</div>
-              <div class="cal-dh">화</div><div class="cal-dh">수</div>
-              <div class="cal-dh">목</div><div class="cal-dh">금</div>
-              <div class="cal-dh">토</div>
-              <div class="cal-cell other">25</div><div class="cal-cell other">26</div>
-              <div class="cal-cell other">27</div><div class="cal-cell other">28</div>
-              <div class="cal-cell other">29</div><div class="cal-cell other">30</div>
-              <div class="cal-cell other">31</div>
-              <div class="cal-cell">1</div><div class="cal-cell">2</div>
-              <div class="cal-cell">3</div><div class="cal-cell">4</div>
-              <div class="cal-cell">5</div><div class="cal-cell">6</div><div class="cal-cell">7</div>
-              <div class="cal-cell">8</div><div class="cal-cell">9</div>
-              <div class="cal-cell">10</div><div class="cal-cell">11</div>
-              <div class="cal-cell">12</div><div class="cal-cell">13</div><div class="cal-cell">14</div>
-              <div class="cal-cell">15</div><div class="cal-cell">16</div>
-              <div class="cal-cell">17</div><div class="cal-cell">18</div>
-              <div class="cal-cell">19</div><div class="cal-cell today">20</div><div class="cal-cell">21</div>
-              <div class="cal-cell">22</div><div class="cal-cell">23</div>
-              <div class="cal-cell">24</div><div class="cal-cell">25</div>
-              <div class="cal-cell">26</div><div class="cal-cell">27</div><div class="cal-cell">28</div>
-            </div>
-          </div>
-        </div>
+<div class="card fu">
+  <div class="card-header"><span class="card-title">📅 캘린더</span></div>
+  <div class="card-body">
+    <div class="cal-header">
+      <button class="cal-nav">‹</button>
+      <span class="cal-month" th:text="${#temporals.format(today, 'yyyy년 MM월')}">2025년 6월</span>
+      <button class="cal-nav">›</button>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-dh">일</div><div class="cal-dh">월</div>
+      <div class="cal-dh">화</div><div class="cal-dh">수</div>
+      <div class="cal-dh">목</div><div class="cal-dh">금</div>
+      <div class="cal-dh">토</div>
+      <!-- 이전달 -->
+      <div class="cal-cell other">25</div>
+      <div class="cal-cell other">26</div>
+      <div class="cal-cell other">27</div>
+      <div class="cal-cell other">28</div>
+      <div class="cal-cell other">29</div>
+      <div class="cal-cell other">30</div>
+      <div class="cal-cell other">31</div>
+      <!-- 이번달 -->
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 1)} ? ' has-ev' : ''">1</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 2)} ? ' has-ev' : ''">2</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 3)} ? ' has-ev' : ''">3</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 4)} ? ' has-ev' : ''">4</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 5)} ? ' has-ev' : ''">5</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 6)} ? ' has-ev' : ''">6</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 7)} ? ' has-ev' : ''">7</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 8)} ? ' has-ev' : ''">8</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 9)} ? ' has-ev' : ''">9</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 10)} ? ' has-ev' : ''">10</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 11)} ? ' has-ev' : ''">11</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 12)} ? ' has-ev' : ''">12</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 13)} ? ' has-ev' : ''">13</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 14)} ? ' has-ev' : ''">14</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 15)} ? ' has-ev' : ''">15</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 16)} ? ' has-ev' : ''">16</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 17)} ? ' has-ev' : ''">17</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 18)} ? ' has-ev' : ''">18</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 19)} ? ' has-ev' : ''">19</div>
+      <div class="cal-cell today" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 20)} ? ' has-ev' : ''">20</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 21)} ? ' has-ev' : ''">21</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 22)} ? ' has-ev' : ''">22</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 23)} ? ' has-ev' : ''">23</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 24)} ? ' has-ev' : ''">24</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 25)} ? ' has-ev' : ''">25</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 26)} ? ' has-ev' : ''">26</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 27)} ? ' has-ev' : ''">27</div>
+      <div class="cal-cell" th:classappend="${scheduleDays != null and #lists.contains(scheduleDays, 28)} ? ' has-ev' : ''">28</div>
+    </div>
+  </div>
+</div>
 
       </div><!-- /dash-grid -->
     </div><!-- /content-body -->

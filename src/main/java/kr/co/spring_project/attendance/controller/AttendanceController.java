@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpSession;
 import kr.co.spring_project.attendance.dto.ReqAttendanceDTO;
+import kr.co.spring_project.attendance.entity.Attendance;
 import kr.co.spring_project.attendance.service.AttendanceService;
 import kr.co.spring_project.member.dto.ResloginDTO;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,15 @@ public class AttendanceController {
     private final AttendanceService attendanceService;
 
     @GetMapping("")
-    public String attendancePage(Model model) {
+    public String attendancePage(Model model, HttpSession session) {
+
+        ResloginDTO loginMember = (ResloginDTO) session.getAttribute("LOGIN_MEMBER");
+        if (loginMember == null) return "redirect:/member/login";
+
+        Attendance today = attendanceService.getTodayAttendance(loginMember.getEmployeeNo());
+
+        model.addAttribute("today", today);
+
         return "pages/home/attendance";
     }
 
@@ -40,12 +49,16 @@ public class AttendanceController {
         LocalTime time = LocalTime.parse(checkTime);
         LocalDateTime checkDateTime = LocalDateTime.of(today, time);
 
-        ReqAttendanceDTO dto = ReqAttendanceDTO.builder()
-                .status(status)
-                .checkTime(checkDateTime)
-                .employeeNo(loginMember.getEmployeeNo())
-                .build();
-        attendanceService.checkIn(dto);
+        try {
+            ReqAttendanceDTO dto = ReqAttendanceDTO.builder()
+                    .status(status)
+                    .checkTime(checkDateTime)
+                    .employeeNo(loginMember.getEmployeeNo())
+                    .build();
+            attendanceService.checkIn(dto);
+        } catch (RuntimeException e) {
+            return "redirect:/attendance?error=" + e.getMessage();
+        }
         return "redirect:/attendance";
     }
 
@@ -68,4 +81,5 @@ public class AttendanceController {
         attendanceService.checkOut(dto);
         return "redirect:/attendance";
     }
+    
 }
