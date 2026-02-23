@@ -15,6 +15,7 @@ import lombok.ToString;
 @ToString
 @Data
 public class ReqregisterDTO {
+	private String username;
     private String name;          // ← 추가
     private String gender;
     private String email;
