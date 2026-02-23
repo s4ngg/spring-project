@@ -19,7 +19,8 @@
           <div class="page-sub">관리자가 등록한 공지를 확인하세요</div>
         </div>
         <!-- ADMIN만 작성 버튼 표시 -->
-        <a th:if="${session.LOGIN_MEMBER.role == 'ADMIN'}"
+        <a th:if="${session.LOGIN_MEMBER != null and
+        			 session.LOGIN_MEMBER.role == 'ADMIN'}"
            th:href="@{/board/notice/write}" class="btn btn-primary">✏️ 공지 작성</a>
       </div>
 
