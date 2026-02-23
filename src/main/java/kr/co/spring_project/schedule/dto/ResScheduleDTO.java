@@ -20,6 +20,7 @@ public class ResScheduleDTO {
     private LocalDateTime endAt;
     private Boolean isPublic;
     private LocalDateTime createdAt;
+    private Long employeeNo;      // 추가
 
     // Member 연동
     private Long memberId;

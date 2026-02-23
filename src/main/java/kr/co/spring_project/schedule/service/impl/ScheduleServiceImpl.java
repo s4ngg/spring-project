@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.servlet.http.HttpSession;
 import kr.co.spring_project.member.dto.ResloginDTO;
+import kr.co.spring_project.member.entity.Member;
 import kr.co.spring_project.schedule.dto.ReqScheduleDTO;
 import kr.co.spring_project.schedule.dto.ResScheduleDTO;
 import kr.co.spring_project.schedule.entity.Schedule;
@@ -26,9 +27,10 @@ public class ScheduleServiceImpl implements ScheduleService {
     public void createSchedule(ReqScheduleDTO dto, HttpSession session) {
 
         // 1. 로그인 체크
-        if (session.getAttribute("LOGIN_MEMBER") == null) {
+        ResloginDTO loginMember = (ResloginDTO) session.getAttribute("LOGIN_MEMBER");
+        if (loginMember == null) {
             throw new RuntimeException("로그인이 필요합니다.");
-        } 
+        }
 
         // 2. 시작일시 > 종료일시 검증
         if (dto.getStartDt().isAfter(dto.getEndAt())) {
@@ -36,6 +38,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
 
         Schedule schedule = Schedule.builder()
+                .member(Member.builder().employeeNo(loginMember.getEmployeeNo()).build())
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .startDt(dto.getStartDt())
@@ -49,8 +52,17 @@ public class ScheduleServiceImpl implements ScheduleService {
     // 전체 조회
     @Override
     public List<ResScheduleDTO> getScheduleList(HttpSession session) {
+        ResloginDTO loginMember = (ResloginDTO) session.getAttribute("LOGIN_MEMBER");
+        if (loginMember == null) throw new RuntimeException("로그인이 필요합니다.");
+
         return scheduleRepository.findAll()
                 .stream()
+                .filter(s -> 
+                    // 본인 일정이거나
+                    s.getMember() != null && s.getMember().getEmployeeNo().equals(loginMember.getEmployeeNo())
+                    // 또는 공개 일정
+                    || Boolean.TRUE.equals(s.getIsPublic())
+                )
                 .map(s -> ResScheduleDTO.builder()
                         .scheduleId(s.getScheduleId())
                         .title(s.getTitle())
@@ -76,6 +88,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .endAt(s.getEndAt())
                 .isPublic(s.getIsPublic())
                 .createdAt(s.getCreatedAt())
+                .employeeNo(s.getMember() != null ? s.getMember().getEmployeeNo() : null)
+                .memberName(s.getMember() != null ? s.getMember().getName() : null)
                 .build();
     }
 
@@ -108,7 +122,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         // 2. 본인 or 관리자만 삭제 가능
         if (!schedule.getMember().getEmployeeNo().equals(loginMember.getEmployeeNo())
-        	    || !loginMember.getRole().equals("ADMIN")) {
+        	    && !loginMember.getRole().equals("ADMIN")){
         	throw new RuntimeException("삭제 권한이 없습니다.");  //←추가 (02.22)soo
 
         }
