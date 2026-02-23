@@ -9,34 +9,28 @@
 <body>
 <div class="app-wrap">
 
-  <!-- SIDEBAR -->
   <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
   <div class="main-content">
-    <!-- TOPBAR -->
     <header th:replace="~{fragments/header :: topbar(title='홈 대시보드')}"></header>
 
     <div class="content-body">
       <div class="page-header">
-  <div>
-    <!-- 로그인 됐을 때 -->
-    <div class="page-title" th:if="${session.LOGIN_MEMBER != null}">
-      👋 안녕하세요,
-      <span th:text="${session.LOGIN_MEMBER.name}">홍길동</span>
-      <span th:text="${session.LOGIN_MEMBER.gradeName}">과장</span>님!
-    </div>
-    <!-- 로그인 안됐을 때 -->
-    <div class="page-title" th:unless="${session.LOGIN_MEMBER != null}">
-      👋 안녕하세요! 로그인이 필요합니다.
-    </div>
-    <div class="page-sub"
-         th:text="${#temporals.format(today, 'yyyy년 MM월 dd일 EEEE',
-                   new java.util.Locale('ko'))}">2025년 6월 20일 금요일</div>
-  </div>
-  <form th:action="@{/attendance/check-in}" method="post">
-    <button type="submit" class="btn btn-primary">⏰ 출근 체크</button>
-  </form>
-</div>
+        <div>
+          <div class="page-title" th:if="${session.LOGIN_MEMBER != null}">
+            👋 안녕하세요,
+            <span th:text="${session.LOGIN_MEMBER.name}">홍길동</span>
+            <span th:text="${session.LOGIN_MEMBER.gradeName}">과장</span>님!
+          </div>
+          <div class="page-title" th:unless="${session.LOGIN_MEMBER != null}">
+            👋 안녕하세요! 로그인이 필요합니다.
+          </div>
+          <div class="page-sub"
+               th:text="${#temporals.format(today, 'yyyy년 MM월 dd일 EEEE', new java.util.Locale('ko'))}">2025년 6월 20일 금요일</div>
+        </div>
+        <!-- 출근 체크 버튼 - 모달 방식 -->
+        <button type="button" class="btn btn-primary" onclick="openCheckModal('in')">⏰ 출근 체크</button>
+      </div>
 
       <!-- 통계 카드 -->
       <div class="stats-row">
@@ -90,7 +84,6 @@
                 </div>
               </div>
             </div>
-            <!-- 공지 없을 때 -->
             <div th:if="${#lists.isEmpty(recentNotices)}" style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">
               등록된 공지가 없습니다.
             </div>
@@ -120,10 +113,10 @@
                      th:text="${todayAttendance != null and todayAttendance.checkOut != null}
                                ? ${#temporals.format(todayAttendance.checkOut, 'HH:mm')} : '--:--'">--:--</div>
               </div>
-              <form th:action="@{/attendance/check-out}" method="post"
-                    th:if="${todayAttendance != null and todayAttendance.checkIn != null and todayAttendance.checkOut == null}">
-                <button type="submit" class="att-btn out">퇴근 체크</button>
-              </form>
+              <!-- 퇴근 체크 버튼 - 모달 방식 -->
+              <button type="button" class="att-btn out"
+                      th:if="${todayAttendance != null and todayAttendance.checkIn != null and todayAttendance.checkOut == null}"
+                      onclick="openCheckModal('out')">퇴근 체크</button>
             </div>
             <!-- 이번달 요약 -->
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px;">
@@ -157,24 +150,21 @@
               <div class="cal-dh">화</div><div class="cal-dh">수</div>
               <div class="cal-dh">목</div><div class="cal-dh">금</div>
               <div class="cal-dh">토</div>
-              <!-- th:each="day : ${calendarDays}" -->
-              <!-- th:class="${day.today} ? 'cal-cell today' : (${day.currentMonth} ? 'cal-cell' : 'cal-cell other')" -->
-              <!-- th:text="${day.dayNum}" -->
               <div class="cal-cell other">25</div><div class="cal-cell other">26</div>
               <div class="cal-cell other">27</div><div class="cal-cell other">28</div>
               <div class="cal-cell other">29</div><div class="cal-cell other">30</div>
               <div class="cal-cell other">31</div>
               <div class="cal-cell">1</div><div class="cal-cell">2</div>
-              <div class="cal-cell">3</div><div class="cal-cell has-ev">4</div>
+              <div class="cal-cell">3</div><div class="cal-cell">4</div>
               <div class="cal-cell">5</div><div class="cal-cell">6</div><div class="cal-cell">7</div>
               <div class="cal-cell">8</div><div class="cal-cell">9</div>
-              <div class="cal-cell has-ev">10</div><div class="cal-cell">11</div>
+              <div class="cal-cell">10</div><div class="cal-cell">11</div>
               <div class="cal-cell">12</div><div class="cal-cell">13</div><div class="cal-cell">14</div>
               <div class="cal-cell">15</div><div class="cal-cell">16</div>
               <div class="cal-cell">17</div><div class="cal-cell">18</div>
               <div class="cal-cell">19</div><div class="cal-cell today">20</div><div class="cal-cell">21</div>
               <div class="cal-cell">22</div><div class="cal-cell">23</div>
-              <div class="cal-cell">24</div><div class="cal-cell has-ev">25</div>
+              <div class="cal-cell">24</div><div class="cal-cell">25</div>
               <div class="cal-cell">26</div><div class="cal-cell">27</div><div class="cal-cell">28</div>
             </div>
           </div>
@@ -184,6 +174,64 @@
     </div><!-- /content-body -->
   </div><!-- /main-content -->
 </div><!-- /app-wrap -->
+
+<!-- 출퇴근 모달 -->
+<div id="check-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:999; align-items:center; justify-content:center;">
+  <div class="card" style="width:400px; max-width:90%;">
+    <div class="card-header">
+      <span class="card-title" id="modal-title">출근 체크</span>
+      <button onclick="closeCheckModal()" style="font-size:18px; color:var(--text-muted); cursor:pointer;">✕</button>
+    </div>
+    <div class="card-body">
+      <form id="check-form" method="post">
+        <div class="form-group">
+          <label class="form-label">시간 선택</label>
+          <input type="time" id="check-time" name="checkTime" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">상태</label>
+          <select name="status" class="form-control">
+            <option value="정상">정상</option>
+            <option value="지각">지각</option>
+            <option value="조퇴">조퇴</option>
+            <option value="휴가">휴가</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline" onclick="closeCheckModal()">취소</button>
+          <button type="submit" class="btn btn-primary" id="modal-submit-btn">출근</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script th:src="@{/js/script.js}"></script>
+<script>
+  function openCheckModal(type) {
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mi = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('check-time').value = `${hh}:${mi}`;
+    if (type === 'in') {
+      document.getElementById('modal-title').textContent = '⏰ 출근 체크';
+      document.getElementById('modal-submit-btn').textContent = '출근';
+      document.getElementById('check-form').action = '/attendance/check-in';
+    } else {
+      document.getElementById('modal-title').textContent = '🏠 퇴근 체크';
+      document.getElementById('modal-submit-btn').textContent = '퇴근';
+      document.getElementById('check-form').action = '/attendance/check-out';
+    }
+    document.getElementById('check-modal').style.display = 'flex';
+  }
+
+  function closeCheckModal() {
+    document.getElementById('check-modal').style.display = 'none';
+  }
+
+  document.getElementById('check-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeCheckModal();
+  });
+</script>
 </body>
 </html>

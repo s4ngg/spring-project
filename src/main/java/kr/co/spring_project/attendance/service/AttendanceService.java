@@ -1,12 +1,10 @@
 package kr.co.spring_project.attendance.service;
 
 import kr.co.spring_project.attendance.dto.ReqAttendanceDTO;
+import kr.co.spring_project.attendance.entity.Attendance;
 
 public interface AttendanceService {
-
-	// 출근 체크
-	void checkIn(ReqAttendanceDTO dto);
-
-	// 퇴근 체크
-	void checkOut(ReqAttendanceDTO dto);
+    void checkIn(ReqAttendanceDTO dto);
+    void checkOut(ReqAttendanceDTO dto);
+    Attendance getTodayAttendance(Long employeeNo);  // 추가
 }

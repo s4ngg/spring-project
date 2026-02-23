@@ -1,7 +1,8 @@
- package kr.co.spring_project.attendance.controller;
+package kr.co.spring_project.attendance.controller;
 
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +24,11 @@ public class AttendanceController {
 
     private final AttendanceService attendanceService;
 
+    @GetMapping("")
+    public String attendancePage(Model model) {
+        return "pages/home/attendance";
+    }
+
     @PostMapping("/check-in")
     public String checkIn(@RequestParam("checkTime") String checkTime,
                           @RequestParam("status") String status,
@@ -30,9 +36,13 @@ public class AttendanceController {
         ResloginDTO loginMember = (ResloginDTO) session.getAttribute("LOGIN_MEMBER");
         if (loginMember == null) return "redirect:/member/login";
 
+        LocalDate today = LocalDate.now();
+        LocalTime time = LocalTime.parse(checkTime);
+        LocalDateTime checkDateTime = LocalDateTime.of(today, time);
+
         ReqAttendanceDTO dto = ReqAttendanceDTO.builder()
                 .status(status)
-                .checkTime(LocalDateTime.parse(checkTime))
+                .checkTime(checkDateTime)
                 .employeeNo(loginMember.getEmployeeNo())
                 .build();
         attendanceService.checkIn(dto);
@@ -46,17 +56,16 @@ public class AttendanceController {
         ResloginDTO loginMember = (ResloginDTO) session.getAttribute("LOGIN_MEMBER");
         if (loginMember == null) return "redirect:/member/login";
 
+        LocalDate today = LocalDate.now();
+        LocalTime time = LocalTime.parse(checkTime);
+        LocalDateTime checkDateTime = LocalDateTime.of(today, time);
+
         ReqAttendanceDTO dto = ReqAttendanceDTO.builder()
                 .status(status)
-                .checkTime(LocalDateTime.parse(checkTime))
+                .checkTime(checkDateTime)
                 .employeeNo(loginMember.getEmployeeNo())
                 .build();
         attendanceService.checkOut(dto);
         return "redirect:/attendance";
-    }
-    
-    @GetMapping("")
-    public String attendancePage(Model model) {
-        return "pages/home/attendance";
     }
 }

@@ -1,5 +1,10 @@
 package kr.co.spring_project.attendance.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import kr.co.spring_project.attendance.dto.ReqAttendanceDTO;
@@ -35,5 +40,17 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .checkOut(dto.getCheckTime())
                 .build();
         attendanceRepository.save(attendance);
+    }
+
+    @Override
+    public Attendance getTodayAttendance(Long employeeNo) {
+        LocalDate today = LocalDate.now();
+        List<Attendance> list = attendanceRepository
+            .findByMember_EmployeeNoAndCheckInBetween(
+                employeeNo,
+                today.atStartOfDay(),
+                today.plusDays(1).atStartOfDay()
+            );
+        return list.isEmpty() ? null : list.get(0);
     }
 }
