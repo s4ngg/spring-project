@@ -28,7 +28,7 @@ public class BoardFileServiceImpl implements BoardFileService {
 	
 	@Override
 	public List<ResBoardFileDTO> getFiles(Long boardId) {
-		List<BoardFile> boardFiles = boardFileRepository.findByBoardId(boardId);
+		List<BoardFile> boardFiles = boardFileRepository.findByBoard_BoardId(boardId);
 		
 		List<ResBoardFileDTO> fileList = new ArrayList<>();
 		
