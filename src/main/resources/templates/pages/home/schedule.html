@@ -71,7 +71,8 @@
              data-public=${schedule.isPublic}"
 											onclick="openDetail(this)">확인</button> <!-- 본인 일정만 삭제 버튼 표시 -->
 										<form
-											th:if="${session.LOGIN_MEMBER.employeeNo == schedule.employeeNo}"
+											th:if="${session.LOGIN_MEMBER.employeeNo == schedule.employeeNo 
+          or session.LOGIN_MEMBER.role == 'ADMIN'}"
 											th:action="@{/schedule/delete/{id}(id=${schedule.scheduleId})}"
 											method="post" style="display: inline;"
 											onsubmit="return confirm('삭제하시겠습니까?')">
