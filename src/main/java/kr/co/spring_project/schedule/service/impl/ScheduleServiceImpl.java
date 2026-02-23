@@ -121,8 +121,12 @@ public class ScheduleServiceImpl implements ScheduleService {
             .orElseThrow(() -> new RuntimeException("해당 일정이 없습니다."));
 
         // 2. 본인 or 관리자만 삭제 가능
-        if (!schedule.getMember().getEmployeeNo().equals(loginMember.getEmployeeNo())
-                && !loginMember.getRole().equals("ADMIN")) {
+        Long writer = schedule.getMember() != null ? schedule.getMember().getEmployeeNo() : null;
+
+        boolean isOwner = loginMember.getEmployeeNo().equals(writer);
+        boolean isAdmin = "ADMIN".equals(loginMember.getRole());
+
+        if (!isOwner && !isAdmin) {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
 
