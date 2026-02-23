@@ -1,6 +1,8 @@
 package kr.co.spring_project.member.repository;
 
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import kr.co.spring_project.member.entity.Member;
@@ -12,5 +14,7 @@ public interface MemberRepository extends JpaRepository<Member, Long>{
 	
 	// 사원번호
 	Member findByEmail(String email);
+	
+	List<Member> findByNameContaining(String name);
 }
 

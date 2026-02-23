@@ -13,7 +13,49 @@
   <div class="topbar-actions">
     <button class="icon-btn" title="알림">
     </button>
-    <a th:href="@{/message}" class="icon-btn" title="쪽지">✉️</a>
+    <!-- 쪽지 버튼: 팝업 토글 -->
+    <div class="msg-popup-wrap" id="msgPopupWrap">
+      <button class="icon-btn msg-popup-trigger" id="msgPopupTrigger" title="쪽지" onclick="toggleMsgPopup(event)">
+        ✉️
+        <span th:if="${unreadMessageCount != null and unreadMessageCount > 0}"
+              class="msg-badge"
+              th:text="${unreadMessageCount}"></span>
+      </button>
+
+      <!-- 팝업 패널 -->
+      <div class="msg-popup" id="msgPopup">
+        <!-- 팝업 헤더 -->
+        <div class="msg-popup-header">
+          <span class="msg-popup-title">쪽지함</span>
+          <div class="msg-popup-header-actions">
+            <a th:href="@{/message/write}" class="msg-write-btn">✏️ 쪽지 쓰기</a>
+            <a th:href="@{/message/inbox}" class="msg-all-btn">모두 보기 →</a>
+          </div>
+        </div>
+
+        <!-- 최근 쪽지 목록 (서버에서 recentMessages 모델로 주입) -->
+        <ul class="msg-popup-list" th:if="${recentMessages != null and not #lists.isEmpty(recentMessages)}">
+          <li th:each="msg : ${recentMessages}" class="msg-popup-item">
+            <a th:href="@{/message/} + ${msg.messageId}" class="msg-popup-link">
+              <div class="msg-popup-row">
+                <span class="msg-popup-sender"
+                      th:classappend="${!msg.read} ? ' unread'"
+                      th:text="${msg.senderName}"></span>
+                <span class="msg-popup-time"
+                      th:text="${#temporals.format(msg.sentAt, 'MM.dd HH:mm')}"></span>
+              </div>
+              <div class="msg-popup-subject"
+                   th:classappend="${!msg.read} ? ' unread'"
+                   th:text="${msg.title}"></div>
+            </a>
+          </li>
+        </ul>
+
+        <!-- 쪽지 없을 때 -->
+        <div th:if="${recentMessages == null or #lists.isEmpty(recentMessages)}"
+             class="msg-popup-empty">받은 쪽지가 없습니다.</div>
+      </div>
+    </div>
 
     <!-- 로그인 됐을 때 -->
     <a th:if="${session.LOGIN_MEMBER != null}"
