@@ -71,12 +71,29 @@
     </a>
 
     <!-- 관리자 메뉴 (ADMIN만 표시) -->
-    <a th:if="${session.LOGIN_MEMBER != null and session.LOGIN_MEMBER.role == 'ADMIN'}"
-       th:href="@{/admin}" class="nav-item"
-       th:classappend="${currentPage == 'admin'} ? 'active'">
-      <div class="nav-icon">⚙️</div>
-      <span class="nav-label">관리자 메뉴</span>
-    </a>
+<div th:if="${session.LOGIN_MEMBER != null and session.LOGIN_MEMBER.role == 'ADMIN'}">
+  <div class="nav-section">관리자</div>
+  <a th:href="@{/admin}" class="nav-item"
+     th:classappend="${currentPage == 'admin'} ? 'active'">
+    <div class="nav-icon">🛠</div>
+    <span class="nav-label">관리자 대시보드</span>
+  </a>
+  <a th:href="@{/admin/members}" class="nav-item"
+     th:classappend="${currentPage == 'adminMembers'} ? 'active'">
+    <div class="nav-icon">👥</div>
+    <span class="nav-label">회원 관리</span>
+  </a>
+  <a th:href="@{/admin/attendance}" class="nav-item"
+     th:classappend="${currentPage == 'adminAttendance'} ? 'active'">
+    <div class="nav-icon">⏱</div>
+    <span class="nav-label">근태 관리</span>
+  </a>
+  <a th:href="@{/admin/dept}" class="nav-item"
+     th:classappend="${currentPage == 'adminDept'} ? 'active'">
+    <div class="nav-icon">🏢</div>
+    <span class="nav-label">부서/직급 관리</span>
+  </a>
+</div>
   </nav>
 
   <div class="sidebar-footer">

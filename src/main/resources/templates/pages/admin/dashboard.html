@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>관리자 대시보드 — WorkSpace</title>
+  <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<div class="app-wrap">
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+  <div class="main-content">
+    <header th:replace="~{fragments/header :: topbar(title='관리자 대시보드')}"></header>
+    <div class="content-body">
+
+      <div class="page-header">
+        <div>
+          <div class="page-title">🛠 관리자 대시보드</div>
+          <div class="page-sub">전체 직원 현황을 확인하세요</div>
+        </div>
+      </div>
+
+      <!-- 통계 카드 -->
+      <div class="stats-row">
+        <div class="stat-card c-blue fu">
+          <div class="sc-bar"></div>
+          <div class="stat-icon">👥</div>
+          <div class="stat-num" th:text="${totalMembers}">0</div>
+          <div class="stat-label">전체 직원</div>
+          <div class="stat-chip up">전체</div>
+        </div>
+        <div class="stat-card c-green fu">
+          <div class="sc-bar"></div>
+          <div class="stat-icon">✅</div>
+          <div class="stat-num" th:text="${todayCheckInCount}">0</div>
+          <div class="stat-label">오늘 출근</div>
+          <div class="stat-chip up" th:text="${checkInRate + '%'}">0%</div>
+        </div>
+        <div class="stat-card c-red fu">
+          <div class="sc-bar"></div>
+          <div class="stat-icon">❌</div>
+          <div class="stat-num" th:text="${todayAbsentCount}">0</div>
+          <div class="stat-label">미출근</div>
+          <div class="stat-chip warn">확인 필요</div>
+        </div>
+        <div class="stat-card c-yellow fu">
+          <div class="sc-bar"></div>
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-num" th:text="${todayLateCount}">0</div>
+          <div class="stat-label">오늘 지각</div>
+          <div class="stat-chip warn">지각</div>
+        </div>
+      </div>
+
+      <!-- 오늘 출근 현황 테이블 -->
+      <div class="card fu">
+        <div class="card-header">
+          <span class="card-title">📋 오늘 출근 현황</span>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>직원번호</th>
+                <th>이름</th>
+                <th>출근 시간</th>
+                <th>퇴근 시간</th>
+                <th>상태</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="a : ${recentAttendances}">
+                <td th:text="${a.member.employeeNo}">1</td>
+                <td th:text="${a.member.name}">홍길동</td>
+                <td th:text="${a.checkIn != null ? #temporals.format(a.checkIn, 'HH:mm') : '-'}">09:00</td>
+                <td th:text="${a.checkOut != null ? #temporals.format(a.checkOut, 'HH:mm') : '-'}">-</td>
+                <td>
+                  <span class="badge"
+                        th:classappend="${a.status == '정상'} ? 'badge-green' : 'badge-yellow'"
+                        th:text="${a.status}">정상</span>
+                </td>
+              </tr>
+              <tr th:if="${#lists.isEmpty(recentAttendances)}">
+                <td colspan="5" style="text-align:center; padding:40px; color:var(--text-muted);">
+                  오늘 출근한 직원이 없습니다.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script th:src="@{/js/script.js}"></script>
+</body>
+</html>
