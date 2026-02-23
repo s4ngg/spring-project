@@ -65,7 +65,7 @@ public class NoticeServiceImpl implements NoticeService {
 
         board.setViewCount(board.getViewCount() == null ? 1 : board.getViewCount() + 1);
 
-        List<BoardFile> boardFiles = boardFileRepository.findByBoardId(boardId);
+        List<BoardFile> boardFiles = boardFileRepository.findByBoard_BoardId(boardId);
         List<ResNoticeFileDTO> fileDTOs = boardFiles.stream()
                 .map(f -> ResNoticeFileDTO.builder()
                         .fileId(f.getId())
@@ -114,13 +114,13 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     @Transactional
     public void deleteNotice(Long boardId) {
-        boardFileRepository.deleteAll(boardFileRepository.findByBoardId(boardId));
+        boardFileRepository.deleteAll(boardFileRepository.findByBoard_BoardId(boardId));
         boardRepository.deleteById(boardId);
     }
 
     private ResNoticeDTO toListDTO(Board board) {
         return ResNoticeDTO.builder()
-                .boardId(board.getId())
+                .boardId(board.getBoardId())
                 .title(board.getTitle())
                 .writerName(board.getWriter() != null ? board.getWriter().getName() : "")
                 .type(board.getCategory())
@@ -132,7 +132,7 @@ public class NoticeServiceImpl implements NoticeService {
 
     private ResNoticeDTO toDetailDTO(Board board, List<ResNoticeFileDTO> files) {
         return ResNoticeDTO.builder()
-                .boardId(board.getId())
+                .boardId(board.getBoardId())
                 .title(board.getTitle())
                 .content(board.getContent())
                 .writerName(board.getWriter() != null ? board.getWriter().getName() : "")

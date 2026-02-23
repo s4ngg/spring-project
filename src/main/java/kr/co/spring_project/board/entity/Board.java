@@ -24,10 +24,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Board {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "board_id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "board_id")
+	private Long boardId;
 
     private String boardType;
     private String category;

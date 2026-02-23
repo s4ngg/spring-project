@@ -8,5 +8,5 @@ import kr.co.spring_project.board.entity.BoardFile;
 
 public interface BoardFileRepository extends JpaRepository<BoardFile, Long>{
 	
-	List<BoardFile> findByBoardId(Long boardId);
+	List<BoardFile> findByBoard_BoardId(Long boardId);
 }
