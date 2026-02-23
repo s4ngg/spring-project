@@ -19,4 +19,8 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
             Pageable pageable);
 
     Page<Board> findByBoardTypeAndCategory(String boardType, String category, Pageable pageable);
+    
+    
+    int countByWriter_EmployeeNo(Long employeeNo);
+    List<Board> findByWriter_EmployeeNoOrderByCreatedAtDesc(Long employeeNo);
 }
